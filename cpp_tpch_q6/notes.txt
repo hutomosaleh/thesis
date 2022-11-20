@@ -1,0 +1,9 @@
+Notes:
+- std::vector<Records>
+- Records consists of:
+  - l_extendedprice
+  - l_discount
+  - l_shipdate
+  - l_quantity
+- Functions:
+  - sum()
