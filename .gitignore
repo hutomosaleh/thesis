@@ -32,4 +32,6 @@
 *.app
 
 # Folders
-build/*
+/*/build
+/*/.cache
+
