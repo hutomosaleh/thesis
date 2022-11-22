@@ -32,6 +32,14 @@ void multiply_cpu(int n, double* l_quantity, double* l_extendedprice, double* l_
   }
 }
 
+template<class T>
+void vec2ptr(std::vector<T> vec, T* ptr, int size)
+{
+  for (int i=0; i<size; i++) {
+    ptr[i] = vec[i];
+  }
+}
+
 struct LineItem {
   std::vector<double> l_quantity;
   std::vector<double> l_extendedprice;
@@ -95,10 +103,10 @@ int main(int argc, char** argv)
   } else { std::cout << "Ratio set to default: " << r << std::endl; }
 
   std::cout << "Starting program" << std::endl;
-  double* l_quantity = &lineitem.l_quantity[0];
-  double* l_extendedprice = &lineitem.l_extendedprice[0];
-  double* l_discount = &lineitem.l_discount[0];
-  int* l_shipdate = &lineitem.l_shipdate[0];
+  double* l_quantity;
+  double* l_extendedprice;
+  double* l_discount;
+  int* l_shipdate;
   int N = lineitem.size;
 
   // Allocate Unified Memory – accessible from CPU or GPU
@@ -107,6 +115,11 @@ int main(int argc, char** argv)
   cudaMallocManaged(&l_extendedprice, N*sizeof(double));
   cudaMallocManaged(&l_discount, N*sizeof(double));
   cudaMallocManaged(&l_shipdate, N*sizeof(int));
+
+  vec2ptr(lineitem.l_quantity, l_quantity, N);
+  vec2ptr(lineitem.l_extendedprice, l_extendedprice, N);
+  vec2ptr(lineitem.l_discount, l_discount, N);
+  vec2ptr(lineitem.l_shipdate, l_shipdate, N);
 
   int N_cpu = N*r;
   int N_gpu = N*(1-r);
