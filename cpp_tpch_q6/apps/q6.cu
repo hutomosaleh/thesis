@@ -11,8 +11,14 @@ void check_cpu(int n, int* a, int* b, int* c, int* d) {
   }
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
+  float r = 0.f;
+  try {
+    r = atof(argv[1]);
+    std::cout << "Ratio: " << r << std::endl;
+  } catch (...) { std::cout << "Ratio set to default: " << r << std::endl; }
+
   std::cout << "Starting program" << std::endl;
   int N = 1<<20;
   int* l_shipdate;
@@ -41,15 +47,18 @@ int main(void)
     l_quantity[i] = generateRandomInt(rng);
   }
 
-  // Run kernel on 1M elements on the GPU
+  int N_cpu = N*r;
+  int N_gpu = N*(1-r);
+  std::cout << "cpu:gpu ratio: " << N_cpu << ":" << N_gpu << std::endl;
+
+  check_cpu(N_cpu, l_quantity, l_shipdate, l_extendedprice, l_discount);
+
+  // Run kernel on the GPU
   std::cout << "Running kernels" << std::endl;
   int blockSize = 256;
-  int numBlocks = (N + blockSize - 1) / blockSize;
-
-  check_cpu(N, l_quantity, l_shipdate, l_extendedprice, l_discount);
-
-  //check<<<numBlocks, blockSize>>>(N, l_quantity, l_shipdate, l_extendedprice, l_discount);
-  // cudaDeviceSynchronize();  // Is this necessary?
+  int numBlocks = (N_gpu + blockSize - 1) / blockSize;
+  check<<<numBlocks, blockSize>>>(N_gpu, l_quantity, l_shipdate, l_extendedprice, l_discount);
+  cudaDeviceSynchronize();  // Is this necessary?
 
   multiply<<<numBlocks, blockSize>>>(N, l_quantity, l_extendedprice, l_discount);
   cudaDeviceSynchronize();
