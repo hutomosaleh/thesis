@@ -15,11 +15,13 @@
 #define LINEITEM_PATH "cpp_tpch_q6/data/lineitem.tbl"
 #define DELIMITER '|'
 
-void check_cpu(int n, double* l_quantity, int* l_shipdate, double* l_extendedprice, double* l_discount)
+void check_cpu(int n, double* l_quantity, int* l_shipdate, double* l_discount)
 {
   for (int i = 0; i < n; i++) {
-    bool condition = (l_quantity[i]>50 && l_shipdate[i]>50 && l_extendedprice[i]>50 && l_discount[i]>50); // Mock condition
-    l_quantity[i] = condition ? 1 : 0;
+    bool valid_date = (l_shipdate[i] >= 727841 && l_shipdate[i] <= 728206);
+    bool valid_quantity = (l_quantity[i] < 24.0);
+    bool valid_discount = (l_discount[i] > 0.05 && l_discount[i] < 0.07);
+    l_quantity[i] = (valid_date && valid_quantity && valid_discount) ? 1 : 0;
   }
 }
 
@@ -115,8 +117,8 @@ int main(int argc, char** argv)
   auto start = std::chrono::steady_clock::now(); 
 
   std::cout << "Running kernels" << std::endl;
-  check_cpu(N_cpu, l_quantity, l_shipdate, l_extendedprice, l_discount);
-  check<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_shipdate+N_cpu, l_extendedprice+N_cpu, l_discount+N_cpu);
+  check_cpu(N_cpu, l_quantity, l_shipdate, l_discount);
+  check<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_shipdate+N_cpu, l_discount+N_cpu);
   cudaDeviceSynchronize();
 
   multiply_cpu(N_cpu, l_quantity, l_extendedprice, l_discount);

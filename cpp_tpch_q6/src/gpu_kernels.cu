@@ -12,14 +12,16 @@ __global__ void multiply(int n, double* l_quantity, double* l_extendedprice, dou
 }
 
 // Kernel function to check condition
-__global__ void check(int n, double* l_quantity, int* l_shipdate, double* l_extendedprice, double* l_discount)
+__global__ void check(int n, double* l_quantity, int* l_shipdate, double* l_discount)
 {
   int index = blockIdx.x * blockDim.x + threadIdx.x;
   int stride = blockDim.x * gridDim.x;
   for (int i = index; i < n; i+= stride) {
     // Check if WHERE is true, put result in l_quantity
-    bool condition = (l_quantity[i]>50 && l_shipdate[i]>50 && l_extendedprice[i]>50 && l_discount[i]>50); // Mock condition
-    l_quantity[i] = condition ? 1 : 0;
+    bool valid_date = (l_shipdate[i] >= 727841 && l_shipdate[i] <= 728206);
+    bool valid_quantity = (l_quantity[i] < 24.0);
+    bool valid_discount = (l_discount[i] > 0.05 && l_discount[i] < 0.07);
+    l_quantity[i] = (valid_date && valid_quantity && valid_discount) ? 1 : 0;
   }
 }
 
