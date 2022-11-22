@@ -68,13 +68,10 @@ void parse_lineitem(std::string path)
         record.l_quantity.push_back(std::stod(field));
       } else if (column==EXTENDED_PRICE) {
         record.l_extendedprice.push_back(std::stod(field));
-        std::cout << field << std::endl;
       } else if (column==DISCOUNT) {
         record.l_discount.push_back(std::stod(field));
-        std::cout << field << std::endl;
       } else if (column==SHIPDATE) {
         record.l_shipdate.push_back(dtoi(field));
-        std::cout << field << std::endl;
       }
       ++column;
       if (column==NUM_COLUMN) {
