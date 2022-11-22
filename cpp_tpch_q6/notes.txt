@@ -1,9 +1,5 @@
 Notes:
-- std::vector<Records>
-- Records consists of:
-  - l_extendedprice
-  - l_discount
-  - l_shipdate
-  - l_quantity
-- Functions:
-  - sum()
+- Find out how to partially share the computation between cpu and gpu
+  - Look into atomic stuff?
+- Share load between one function 
+- Use parameters to schedule the gpu/cpu calls

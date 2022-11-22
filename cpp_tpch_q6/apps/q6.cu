@@ -1,6 +1,9 @@
 #include <iostream>
+#include <string>
+#include <chrono>
 #include <math.h>
 #include <random>
+#include <string>
 #include "gpu_kernels.h"
 
 // CPU function
@@ -13,11 +16,11 @@ void check_cpu(int n, int* a, int* b, int* c, int* d) {
 
 int main(int argc, char** argv)
 {
-  float r = 0.f;
-  try {
+  float r = 1.0;
+  if (argc > 1) {
     r = atof(argv[1]);
     std::cout << "Ratio: " << r << std::endl;
-  } catch (...) { std::cout << "Ratio set to default: " << r << std::endl; }
+  } else { std::cout << "Ratio set to default: " << r << std::endl; }
 
   std::cout << "Starting program" << std::endl;
   int N = 1<<20;
@@ -49,8 +52,9 @@ int main(int argc, char** argv)
 
   int N_cpu = N*r;
   int N_gpu = N*(1-r);
-  std::cout << "cpu:gpu ratio: " << N_cpu << ":" << N_gpu << std::endl;
+  std::cout << "cpu:gpu ratio: " << r << ":" << (1-r) << std::endl;
 
+  auto start = std::chrono::steady_clock::now(); 
   check_cpu(N_cpu, l_quantity, l_shipdate, l_extendedprice, l_discount);
 
   // Run kernel on the GPU
@@ -63,6 +67,9 @@ int main(int argc, char** argv)
   multiply<<<numBlocks, blockSize>>>(N, l_quantity, l_extendedprice, l_discount);
   cudaDeviceSynchronize();
 
+  auto total = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+  std::cout << "Total time: " << total << " ms" << std::endl;
+
   // Read out 'query result'
   int amount = 0;
   for (int i = 0; i < N; i++) if (l_extendedprice[i]) amount++;
@@ -74,6 +81,6 @@ int main(int argc, char** argv)
   cudaFree(l_extendedprice);
   cudaFree(l_shipdate);
   cudaFree(l_discount);
-   
+  
   return 0;
 }
