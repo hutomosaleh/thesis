@@ -15,27 +15,26 @@
 #define LINEITEM_PATH "cpp_tpch_q6/data/lineitem.tbl"
 #define DELIMITER '|'
 
-// CPU function
-void check_cpu(int n, int* a, int* b, int* c, int* d)
+void check_cpu(int n, double* l_quantity, int* l_shipdate, double* l_extendedprice, double* l_discount)
 {
   for (int i = 0; i < n; i++) {
-    bool condition = (a[i]>50 && b[i]>50 && c[i]>50 && d[i]>50); // Mock condition
-    a[i] = condition ? 1 : 0;
+    bool condition = (l_quantity[i]>50 && l_shipdate[i]>50 && l_extendedprice[i]>50 && l_discount[i]>50); // Mock condition
+    l_quantity[i] = condition ? 1 : 0;
   }
 }
 
-void multiply_cpu(int n, int* a, int* x, int* y)
+void multiply_cpu(int n, double* l_quantity, double* l_extendedprice, double* l_discount)
 {
   for (int i = 0; i < n; i++) {
-    x[i] = (a[i]) ? x[i]*y[i] : 0;
+    l_extendedprice[i] = (l_quantity[i]) ? l_extendedprice[i]*l_discount[i] : 0;
   }
 }
 
 struct LineItem {
-  std::vector<int> l_shipdate;
   std::vector<double> l_quantity;
   std::vector<double> l_extendedprice;
   std::vector<double> l_discount;
+  std::vector<int> l_shipdate;
   int size = 0;
 };
 
@@ -94,32 +93,18 @@ int main(int argc, char** argv)
   } else { std::cout << "Ratio set to default: " << r << std::endl; }
 
   std::cout << "Starting program" << std::endl;
-  int N = 1<<20;
-  int* l_shipdate;
-  int* l_quantity;
-  int* l_extendedprice;
-  int* l_discount;
+  double* l_quantity = &lineitem.l_quantity[0];
+  double* l_extendedprice = &lineitem.l_extendedprice[0];
+  double* l_discount = &lineitem.l_discount[0];
+  int* l_shipdate = &lineitem.l_shipdate[0];
+  int N = lineitem.size;
 
   // Allocate Unified Memory – accessible from CPU or GPU
   std::cout << "Allocating Memory" << std::endl;
-  cudaMallocManaged(&l_extendedprice, N*sizeof(int));
-  cudaMallocManaged(&l_discount, N*sizeof(int));
-  cudaMallocManaged(&l_quantity, N*sizeof(int));
+  cudaMallocManaged(&l_quantity, N*sizeof(double));
+  cudaMallocManaged(&l_extendedprice, N*sizeof(double));
+  cudaMallocManaged(&l_discount, N*sizeof(double));
   cudaMallocManaged(&l_shipdate, N*sizeof(int));
-
-  // initialize rng
-  std::random_device dev;
-  std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> generateRandomInt(1, 100);
-
-  // initialize x and y arrays on the host
-  std::cout << "Initializing values" << std::endl;
-  for (int i = 0; i < N; i++) {
-    l_extendedprice[i] = generateRandomInt(rng);
-    l_discount[i] = generateRandomInt(rng);
-    l_shipdate[i] = generateRandomInt(rng);
-    l_quantity[i] = generateRandomInt(rng);
-  }
 
   int N_cpu = N*r;
   int N_gpu = N*(1-r);
