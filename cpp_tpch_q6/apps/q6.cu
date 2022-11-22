@@ -36,6 +36,7 @@ struct LineItem {
   std::vector<double> l_quantity;
   std::vector<double> l_extendedprice;
   std::vector<double> l_discount;
+  int size;
 };
 
 int dtoi(std::string str) {
@@ -53,12 +54,11 @@ int dtoi(std::string str) {
   return result;
 }
 
-void parse_lineitem(std::string path)
+void parse_lineitem(std::string path, LineItem& record)
 { 
   std::cout << "Parsing lineitem" << std::endl;
   std::fstream buffer(path);
   std::string line;
-  LineItem record;
   while (getline(buffer, line)) {
     std::istringstream row(line);
     std::string field;
@@ -79,6 +79,7 @@ void parse_lineitem(std::string path)
         continue;
       }
     }
+    ++record.size;
   }
 }
 
