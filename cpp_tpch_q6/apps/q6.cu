@@ -36,7 +36,7 @@ struct LineItem {
   std::vector<double> l_quantity;
   std::vector<double> l_extendedprice;
   std::vector<double> l_discount;
-  int size;
+  int size = 0;
 };
 
 int dtoi(std::string str) {
@@ -86,7 +86,8 @@ void parse_lineitem(std::string path, LineItem& record)
 int main(int argc, char** argv)
 {
   float r = 1.0;
-  parse_lineitem(LINEITEM_PATH);
+  LineItem lineitem;
+  parse_lineitem(LINEITEM_PATH, lineitem);
   if (argc > 1) {
     r = atof(argv[1]);
     std::cout << "Ratio: " << r << std::endl;
