@@ -1,11 +1,23 @@
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <math.h>
 #include <random>
+#include <sstream>
+#include <string>
 #include "gpu_kernels.h"
 
+#define QUANTITY 5
+#define EXTENDED_PRICE 6
+#define DISCOUNT 7
+#define SHIPDATE 11
+#define NUM_COLUMN 16
+#define LINEITEM_PATH "cpp_tpch_q6/data/lineitem.tbl"
+#define DELIMITER '|'
+
 // CPU function
-void check_cpu(int n, int* a, int* b, int* c, int* d) {
+void check_cpu(int n, int* a, int* b, int* c, int* d)
+{
   for (int i = 0; i < n; i++) {
     bool condition = (a[i]>50 && b[i]>50 && c[i]>50 && d[i]>50); // Mock condition
     a[i] = condition ? 1 : 0;
@@ -19,9 +31,64 @@ void multiply_cpu(int n, int* a, int* x, int* y)
   }
 }
 
+struct LineItem {
+  std::vector<int> l_shipdate;
+  std::vector<double> l_quantity;
+  std::vector<double> l_extendedprice;
+  std::vector<double> l_discount;
+};
+
+int dtoi(std::string str) {
+  std::istringstream date(str);
+  std::string time;
+  int result = 0;
+  int count = 0;
+  while (getline(date, time, '-')) {
+    int multiplier = 1;
+    if (count==1) multiplier=365;
+    if (count==2) multiplier=30;
+    ++count;
+    result += stoi(time)*multiplier;
+  }
+  return result;
+}
+
+void parse_lineitem(std::string path)
+{ 
+  std::cout << "Parsing lineitem" << std::endl;
+  std::fstream buffer(path);
+  std::string line;
+  LineItem record;
+  while (getline(buffer, line)) {
+    std::istringstream row(line);
+    std::string field;
+    int column;
+    while (getline(row, field, DELIMITER)) {
+      if (column==QUANTITY) {
+        record.l_quantity.push_back(std::stod(field));
+      } else if (column==EXTENDED_PRICE) {
+        record.l_extendedprice.push_back(std::stod(field));
+        std::cout << field << std::endl;
+      } else if (column==DISCOUNT) {
+        record.l_discount.push_back(std::stod(field));
+        std::cout << field << std::endl;
+      } else if (column==SHIPDATE) {
+        record.l_shipdate.push_back(dtoi(field));
+        std::cout << field << std::endl;
+      }
+      ++column;
+      if (column==NUM_COLUMN) {
+        column = 0;
+        continue;
+      }
+    }
+  }
+}
+
 int main(int argc, char** argv)
 {
   float r = 1.0;
+  parse_lineitem(LINEITEM_PATH);
   if (argc > 1) {
     r = atof(argv[1]);
     std::cout << "Ratio: " << r << std::endl;
