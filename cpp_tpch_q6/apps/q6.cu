@@ -1,10 +1,7 @@
 #include <iostream>
-#include <thread>
-#include <string>
 #include <chrono>
 #include <math.h>
 #include <random>
-#include <string>
 #include "gpu_kernels.h"
 
 // CPU function
