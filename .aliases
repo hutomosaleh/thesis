@@ -1,0 +1,2 @@
+alias build='d cpp_tpch_q6/build/ && cmake .. && make && cd -'
+alias run='./cpp_tpch_q6/build/apps/q6'
