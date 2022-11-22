@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <string>
 #include <chrono>
 #include <math.h>
@@ -11,6 +12,13 @@ void check_cpu(int n, int* a, int* b, int* c, int* d) {
   for (int i = 0; i < n; i++) {
     bool condition = (a[i]>50 && b[i]>50 && c[i]>50 && d[i]>50); // Mock condition
     a[i] = condition ? 1 : 0;
+  }
+}
+
+void multiply_cpu(int n, int* a, int* x, int* y)
+{
+  for (int i = 0; i < n; i++) {
+    x[i] = (a[i]) ? x[i]*y[i] : 0;
   }
 }
 
@@ -52,19 +60,19 @@ int main(int argc, char** argv)
 
   int N_cpu = N*r;
   int N_gpu = N*(1-r);
+  int blockSize = 256;
+  int numBlocks = (N_gpu + blockSize - 1) / blockSize;
   std::cout << "cpu:gpu ratio: " << r << ":" << (1-r) << std::endl;
 
   auto start = std::chrono::steady_clock::now(); 
-  check_cpu(N_cpu, l_quantity, l_shipdate, l_extendedprice, l_discount);
 
-  // Run kernel on the GPU
   std::cout << "Running kernels" << std::endl;
-  int blockSize = 256;
-  int numBlocks = (N_gpu + blockSize - 1) / blockSize;
-  check<<<numBlocks, blockSize>>>(N_gpu, l_quantity, l_shipdate, l_extendedprice, l_discount);
-  cudaDeviceSynchronize();  // Is this necessary?
+  check_cpu(N_cpu, l_quantity, l_shipdate, l_extendedprice, l_discount);
+  check<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_shipdate+N_cpu, l_extendedprice+N_cpu, l_discount+N_cpu);
+  cudaDeviceSynchronize();
 
-  multiply<<<numBlocks, blockSize>>>(N, l_quantity, l_extendedprice, l_discount);
+  multiply_cpu(N_cpu, l_quantity, l_extendedprice, l_discount);
+  multiply<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_extendedprice+N_cpu, l_discount+N_cpu);
   cudaDeviceSynchronize();
 
   auto total = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
