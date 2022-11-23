@@ -7,10 +7,10 @@
 #include <string>
 #include "gpu_kernels.h"
 
-#define QUANTITY 5
-#define EXTENDED_PRICE 6
-#define DISCOUNT 7
-#define SHIPDATE 11
+#define QUANTITY 4
+#define EXTENDED_PRICE 5
+#define DISCOUNT 6
+#define SHIPDATE 10
 #define NUM_COLUMN 16
 #define LINEITEM_PATH "cpp_tpch_q6/data/lineitem.tbl"
 #define DELIMITER '|'
@@ -18,9 +18,9 @@
 void check_cpu(int n, double* l_quantity, int* l_shipdate, double* l_discount)
 {
   for (int i = 0; i < n; i++) {
-    bool valid_date = (l_shipdate[i] >= 727841 && l_shipdate[i] <= 728206);
-    bool valid_quantity = (l_quantity[i] < 24.0);
-    bool valid_discount = (l_discount[i] > 0.05 && l_discount[i] < 0.07);
+    bool valid_date = (l_shipdate[i] >= 726350 && l_shipdate[i] <= 729313);
+    bool valid_quantity = (l_quantity[i] < 70.0);
+    bool valid_discount = (l_discount[i] >= 0.01 && l_discount[i] < 0.08);
     l_quantity[i] = (valid_date && valid_quantity && valid_discount) ? 1 : 0;
   }
 }
@@ -55,8 +55,8 @@ int dtoi(std::string str) {
   int count = 0;
   while (getline(date, time, '-')) {
     int multiplier = 1;
-    if (count==1) multiplier=365;
-    if (count==2) multiplier=30;
+    if (count==0) multiplier=365;
+    if (count==1) multiplier=30;
     ++count;
     result += stoi(time)*multiplier;
   }
@@ -115,11 +115,14 @@ int main(int argc, char** argv)
   cudaMallocManaged(&l_extendedprice, N*sizeof(double));
   cudaMallocManaged(&l_discount, N*sizeof(double));
   cudaMallocManaged(&l_shipdate, N*sizeof(int));
-
-  vec2ptr(lineitem.l_quantity, l_quantity, N);
-  vec2ptr(lineitem.l_extendedprice, l_extendedprice, N);
-  vec2ptr(lineitem.l_discount, l_discount, N);
-  vec2ptr(lineitem.l_shipdate, l_shipdate, N);
+  
+  std::cout << "Initializing values" << std::endl;
+  for (int i = 0; i < N; i++) {
+    l_quantity[i] = lineitem.l_quantity[i];
+    l_extendedprice[i] = lineitem.l_extendedprice[i];
+    l_discount[i] = lineitem.l_discount[i];
+    l_shipdate[i] = lineitem.l_shipdate[i];
+  }
 
   int N_cpu = N*r;
   int N_gpu = N*(1-r);

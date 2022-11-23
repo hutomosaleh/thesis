@@ -1,5 +1,32 @@
-Notes:
-- Find out how to partially share the computation between cpu and gpu
-  - Look into atomic stuff?
-- Share load between one function 
-- Use parameters to schedule the gpu/cpu calls
+
+---- QUERY: TPCH-Q6
+# Q6 - Forecasting Revenue Change Query
+select
+  sum(l_extendedprice * l_discount) as revenue
+from
+  lineitem
+where
+  l_shipdate >= '1994-01-01'
+  and l_shipdate < '1995-01-01'
+  and l_discount between 0.05 and 0.07
+  and l_quantity < 24
+
+CREATE TABLE lineitem
+(
+    l_orderkey    BIGINT not null,
+    l_partkey     BIGINT not null,
+    l_suppkey     BIGINT not null,
+    l_linenumber  BIGINT not null,
+    l_quantity    DOUBLE PRECISION not null,
+    l_extendedprice  DOUBLE PRECISION not null,
+    l_discount    DOUBLE PRECISION not null,
+    l_tax         DOUBLE PRECISION not null,
+    l_returnflag  CHAR(1) not null,
+    l_linestatus  CHAR(1) not null,
+    l_shipdate    DATE not null,
+    l_commitdate  DATE not null,
+    l_receiptdate DATE not null,
+    l_shipinstruct CHAR(25) not null,
+    l_shipmode     CHAR(10) not null,
+    l_comment      VARCHAR(44) not null
+);

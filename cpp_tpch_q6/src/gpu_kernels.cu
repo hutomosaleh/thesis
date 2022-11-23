@@ -18,9 +18,9 @@ __global__ void check(int n, double* l_quantity, int* l_shipdate, double* l_disc
   int stride = blockDim.x * gridDim.x;
   for (int i = index; i < n; i+= stride) {
     // Check if WHERE is true, put result in l_quantity
-    bool valid_date = (l_shipdate[i] >= 727841 && l_shipdate[i] <= 728206);
-    bool valid_quantity = (l_quantity[i] < 24.0);
-    bool valid_discount = (l_discount[i] > 0.05 && l_discount[i] < 0.07);
+    bool valid_date = (l_shipdate[i] >= 726350 && l_shipdate[i] <= 729313);
+    bool valid_quantity = (l_quantity[i] < 70.0);
+    bool valid_discount = (l_discount[i] >= 0.01 && l_discount[i] < 0.08);
     l_quantity[i] = (valid_date && valid_quantity && valid_discount) ? 1 : 0;
   }
 }
