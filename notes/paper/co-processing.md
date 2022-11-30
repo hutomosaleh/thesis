@@ -1,11 +1,10 @@
 ## Accelerating Group-By and Aggregation on Heterogenous CPU/GPU Platforms
 
-### Summary
-
 Motivation: integrated GPU has been around and can bypass the PCI-e bottleneck
 Goal: Co-process group-by and aggregation algorithm
 
 Setup
+- Hardware: Intel Core i7-8700 + UHD Graphics 630
 - Tested on 2M and 32M tuples
 - Uses uniform and zipf distribution
 - Initial hash table is done in CPU
@@ -32,8 +31,6 @@ Observation
 
 ## Towards GPUs being mainstream in analytical processing
 
-### Summary
-
 Motivation: dGPU are uncommon on modern database system and iGPU is promising
 Goal: Show reduced overhead of using GPU and accelerate performance
 
@@ -42,6 +39,7 @@ Introduction:
 - iGPU kernels can be run after allocating memory in CPU
 
 Setup
+- Hardware: AMD A10-7850K (APU) | Radeon HD 7970 (dGPU)
 - Uses well-known CPU scan algorithm: BitWeaving
 - Adjustment to BitWeaving is done for GPU kernels
 - OpenCL flow
@@ -76,12 +74,11 @@ Conclusion: iGPU is a viable way to accelerate query computations and is a great
 
 ## Revisiting Co-Processing for Hash Joins on the Coupled CPU-GPU Architecture
 
-### Summary
-
 Motivation: Low PCI-e bandwidth is a bottleneck for Co-processing, iGPU a solution for it 
 Goal: Implement GPU accelerated hash-join algorithm on coupled architecture
 
 Setup
+- Hardware: AMD Fusion A8-3870K (APU) | Radeon HD 7970 (dGPU)
 - Experiment on simple and partitioned hash joins
 - Cases: Offloading, Data Dividing, Pipelined Execution
   - PL: We look into the workload and assigned to appropriate processor
@@ -103,6 +100,7 @@ Problem: GPU implementation of theta join differs from hash- and sort-based equa
 Goal: Provide GPU implementation of theta join and optimization
 
 Setup
+- Hardware: Intel i7-5820K | GTX 970
 - Uses CUDA Framework
 - Uses [MapReduce](https://en.wikipedia.org/wiki/MapReduce) environment
 - Two types of queries
