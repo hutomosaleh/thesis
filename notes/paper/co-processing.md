@@ -73,3 +73,48 @@ Observations
     - Per-thread memory is not optimized on the GPU
 
 Conclusion: iGPU is a viable way to accelerate query computations and is a great alternative for dGPU
+
+## Revisiting Co-Processing for Hash Joins on the Coupled CPU-GPU Architecture
+
+### Summary
+
+Motivation: Low PCI-e bandwidth is a bottleneck for Co-processing, iGPU a solution for it 
+Goal: Implement GPU accelerated hash-join algorithm on coupled architecture
+
+Setup
+- Experiment on simple and partitioned hash joins
+- Cases: Offloading, Data Dividing, Pipelined Execution
+  - PL: We look into the workload and assigned to appropriate processor
+  - DD: Simply assigns to processor regardless of workload type
+  - OL: Assigns computation on only one processor type
+- Uses cost model to parametrize the performance > They call it the abstraction model
+- They also investigate overhead of data transfer on dGPU
+- They evaluate accuracy of their cost model
+
+Conclusion: Improved performance by 53%, 35%, and 28% over CPU, GPU, and conventional co-processing
+
+Notes
+- To recreate, I need to master hash join algorithm and OpenCL programming
+
+## GPU Processing of Theta-Join
+
+Motivation: Theta join is notoriously slow
+Problem: GPU implementation of theta join differs from hash- and sort-based equality joins
+Goal: Provide GPU implementation of theta join and optimization
+
+Setup
+- Uses CUDA Framework
+- Uses [MapReduce](https://en.wikipedia.org/wiki/MapReduce) environment
+- Two types of queries
+  - Theta join followed by aggregation (Input bound, output size is small)
+  - Generic theta join (Output bound, focuses on writing the result)
+
+Observation
+- Each case has its own specific issues and importance, which calls for specialized solutions
+
+Conclusion: An order of magnitude improvement over naive implementation. Up to 2.7x on second case. 
+
+Notes
+- Theta join is inequality join
+- Theta join is an inner join operation which combines tuples on certain condition
+
