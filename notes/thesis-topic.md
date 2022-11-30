@@ -11,9 +11,9 @@
   - On large data, where workload should be offloaded to speed up computation time
   - On non-CPU intensive computation, where GPU performs faster than CPU
 - What are common co-processing research topic?
-  - Algorithm specific comparisons: Group-By, Hash-join, Aggregate, etc
-- Can co-processing be done in any systems with GPU?
-  - Raspberry Pi? No official support yet. But there are community version for 3B+
+  - Algorithm specific comparisons: Group-By, Hash-join, Aggregate, Theta join (rare)
+- Applicable on other hardwares?
+  - Raspberry Pi? No OpenCL official support yet. But there are community version for 3B+
 
 ### Others
 - Common practice seems to use OpenCL instead of CUDA
