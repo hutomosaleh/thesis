@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iterator>
+#include <istream>
 #include <fstream>
 #include <chrono>
 #include <math.h>
@@ -40,12 +42,30 @@ void vec2ptr(std::vector<T> vec, T* ptr, int size)
   }
 }
 
+template<typename T>
+void bin2ptr(const char* filename, T **ptr)
+{
+    // open the file:
+    std::streampos fileSize;
+    std::ifstream file(filename, std::ios::binary);
+
+    // get its size:
+    file.seekg(0, std::ios::end);
+    fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // read the data
+    char *temp = new char[fileSize];
+    file.read(temp, fileSize);
+    *ptr = reinterpret_cast<T*>(temp);
+}
+
 struct LineItem {
-  std::vector<double> l_quantity;
-  std::vector<double> l_extendedprice;
-  std::vector<double> l_discount;
-  std::vector<int> l_shipdate;
-  int size = 0;
+  double* l_quantity;
+  double* l_extendedprice;
+  double* l_discount;
+  int* l_shipdate;
+  int* size;
 };
 
 int dtoi(std::string str) {
@@ -63,51 +83,88 @@ int dtoi(std::string str) {
   return result;
 }
 
-void parse_lineitem(std::string path, LineItem& record)
+void parse_lineitem(std::string path, LineItem& record, bool overwrite_file)
 { 
-  std::cout << "Parsing lineitem" << std::endl;
-  std::fstream buffer(path);
-  std::string line;
-  while (getline(buffer, line)) {
-    std::istringstream row(line);
-    std::string field;
-    int column;
-    while (getline(row, field, DELIMITER)) {
-      if (column==QUANTITY) {
-        record.l_quantity.push_back(std::stod(field));
-      } else if (column==EXTENDED_PRICE) {
-        record.l_extendedprice.push_back(std::stod(field));
-      } else if (column==DISCOUNT) {
-        record.l_discount.push_back(std::stod(field));
-      } else if (column==SHIPDATE) {
-        record.l_shipdate.push_back(dtoi(field));
+  bool file_exists = true;
+  if (overwrite_file)
+  {
+    std::ofstream l_quantity ("cpp_tpch_q6/data/l_quantity.bin", std::ios::binary | std::ios::app);
+    std::ofstream l_extendedprice ("cpp_tpch_q6/data/l_extendedprice.bin", std::ios::binary | std::ios::app);
+    std::ofstream l_discount ("cpp_tpch_q6/data/l_discount.bin", std::ios::binary | std::ios::app);
+    std::ofstream l_shipdate ("cpp_tpch_q6/data/l_shipdate.bin", std::ios::binary | std::ios::app);
+    std::ofstream size ("cpp_tpch_q6/data/size.bin", std::ios::binary | std::ios::app);
+    std::cout << "Parsing lineitem" << std::endl;
+
+    std::fstream buffer(path);
+    std::string line;
+    int record_size = 0;
+    while (getline(buffer, line)) {
+      std::istringstream row(line);
+      std::string field;
+      int column;
+      while (getline(row, field, DELIMITER)) {
+        if (column==QUANTITY) {
+          double q = std::stod(field);
+          l_quantity.write(reinterpret_cast<char*>(&q), sizeof(double));
+        } else if (column==EXTENDED_PRICE) {
+          double q = std::stod(field);
+          l_extendedprice.write(reinterpret_cast<char*>(&q), sizeof(double));
+        } else if (column==DISCOUNT) {
+          double q = std::stod(field);
+          l_discount.write(reinterpret_cast<char*>(&q), sizeof(double));
+        } else if (column==SHIPDATE) {
+          int q = dtoi(field);
+          l_shipdate.write(reinterpret_cast<char*>(&q), sizeof(int));
+        }
+        ++column;
+        if (column==NUM_COLUMN) {
+          column = 0;
+          continue;
+        }
       }
-      ++column;
-      if (column==NUM_COLUMN) {
-        column = 0;
-        continue;
-      }
+      ++record_size;
     }
-    ++record.size;
+    size.write(reinterpret_cast<char*>(&record_size), sizeof(int));
   }
+  else
+  {
+    std::cout << "Table already parsed in binary, using that instead." << std::endl;
+  }
+
+  // Write binary to variables
+  bin2ptr("cpp_tpch_q6/data/l_quantity.bin", &record.l_quantity);
+  bin2ptr("cpp_tpch_q6/data/l_extendedprice.bin", &record.l_extendedprice);
+  bin2ptr("cpp_tpch_q6/data/l_discount.bin", &record.l_discount);
+  bin2ptr("cpp_tpch_q6/data/l_shipdate.bin", &record.l_shipdate);
+  bin2ptr("cpp_tpch_q6/data/size.bin", &record.size);
 }
 
 int main(int argc, char** argv)
 {
   float r = 1.0;
-  LineItem lineitem;
-  parse_lineitem(LINEITEM_PATH, lineitem);
+  bool overwrite_file = false;
   if (argc > 1) {
     r = atof(argv[1]);
     std::cout << "Ratio: " << r << std::endl;
+    if (argc > 2)
+    {
+      std::string str(argv[2]);
+      if (str == "overwrite") overwrite_file = true;
+    }
   } else { std::cout << "Ratio set to default: " << r << std::endl; }
+  
+  LineItem lineitem;
+  parse_lineitem(LINEITEM_PATH, lineitem, overwrite_file);
 
   std::cout << "Starting program" << std::endl;
   double* l_quantity;
   double* l_extendedprice;
   double* l_discount;
   int* l_shipdate;
-  int N = lineitem.size;
+  int N = *lineitem.size;
+
+  std::cout << "Size: " << N << std::endl;
+  std::cout << "l_quantity: " << lineitem.l_quantity[0] << std::endl;
 
   // Allocate Unified Memory – accessible from CPU or GPU
   std::cout << "Allocating Memory" << std::endl;
