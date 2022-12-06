@@ -1,11 +1,6 @@
 #include <iostream>
-#include <iterator>
-#include <istream>
-#include <fstream>
 #include <chrono>
-#include <math.h>
-#include <random>
-#include <sstream>
+#include <vector>
 #include <string>
 
 #include "data_types.hpp"
@@ -31,14 +26,6 @@ void multiply_cpu(int n, double* l_quantity, double* l_extendedprice, double* l_
   }
 }
 
-template<class T>
-void vec2ptr(std::vector<T> vec, T* ptr, int size)
-{
-  for (int i=0; i<size; i++) {
-    ptr[i] = vec[i];
-  }
-}
-
 int main(int argc, char** argv)
 {
   float r = 1.0;
@@ -54,7 +41,7 @@ int main(int argc, char** argv)
   } else { std::cout << "Ratio set to default: " << r << std::endl; }
   
   LineItem lineitem;
-  Parser::Parser p;
+  Parser p;
   p.parse(LINEITEM_PATH, lineitem, overwrite_file);
 
   std::cout << "Starting program" << std::endl;
