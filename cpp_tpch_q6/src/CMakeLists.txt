@@ -1,6 +1,6 @@
-set(HEADERS "${PROJECT_SOURCE_DIR}/include/gpu_kernels.h")
+set(HEADERS "${PROJECT_SOURCE_DIR}/include/gpu_kernels.h" "${PROJECT_SOURCE_DIR}/include/parser.hpp")
 
-add_library(gpu_kernels gpu_kernels.cu ${HEADERS})
+add_library(gpu_kernels gpu_kernels.cu parser.cpp ${HEADERS})
 
 target_include_directories(gpu_kernels PUBLIC ../include)
 
