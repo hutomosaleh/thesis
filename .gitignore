@@ -36,4 +36,6 @@
 /*/.cache
 
 # Specific data
-*.tbl
+/*/data/*.tbl
+/*/data/*.bin
+
