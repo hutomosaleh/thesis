@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "data_types.hpp"
 
 class Parser {
