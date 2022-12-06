@@ -4,7 +4,8 @@
 
 #include "data_types.hpp"
 
-class Parser {
+class Parser
+{
   public:
     void parse(std::string path, LineItem& record, bool overwrite_file);
 

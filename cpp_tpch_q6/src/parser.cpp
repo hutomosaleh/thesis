@@ -62,7 +62,7 @@ void Parser::parse(std::string path, LineItem& record, bool overwrite_file)
     while (getline(buffer, line)) {
       std::istringstream row(line);
       std::string field;
-      int column;
+      int column = 0;
       while (getline(row, field, DELIMITER)) {
         if (column==QUANTITY) {
           double q = std::stod(field);

@@ -51,9 +51,6 @@ int main(int argc, char** argv)
   int* l_shipdate;
   int N = *lineitem.size;
 
-  std::cout << "Size: " << N << std::endl;
-  std::cout << "l_quantity: " << lineitem.l_quantity[0] << std::endl;
-
   // Allocate Unified Memory – accessible from CPU or GPU
   std::cout << "Allocating Memory" << std::endl;
   cudaMallocManaged(&l_quantity, N*sizeof(double));
@@ -92,8 +89,8 @@ int main(int argc, char** argv)
   // Read out 'query result'
   int amount = 0;
   for (int i = 0; i < N; i++) if (l_extendedprice[i]) amount++;
-  std::cout << "Amount: " << amount << std::endl;
-  std::cout << "N: " << N << std::endl;
+  std::cout << "Query hit amount: " << amount << std::endl;
+  std::cout << "Total tuples: " << N << std::endl;
 
   // Free memory
   cudaFree(l_discount);
