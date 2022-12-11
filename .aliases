@@ -1,3 +1,3 @@
-alias build='cd cpp_tpch_q6/build/ && cmake .. && make && cd -'
-alias run='./cpp_tpch_q6/build/apps/q6'
-alias profile='sudo nvprof ./cpp_tpch_q6/build/apps/q6'
+alias build='cd unified_queue/build/ && cmake .. && make && cd -'
+alias run='./unified_queue/build/src/main'
+alias profile='sudo nvprof ./unified_queue/build/apps/q6'
