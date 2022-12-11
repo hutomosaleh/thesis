@@ -3,43 +3,21 @@
 #include <vector>
 #include <string>
 
+#include "task_generator.h"
 #include "data_types.hpp"
 #include "parser.hpp"
 #include "gpu_kernels.h"
+#include "cpu_kernels.hpp"
 
 #define LINEITEM_PATH "data/lineitem.tbl"
 
-void check_cpu(int n, double* l_quantity, int* l_shipdate, double* l_discount)
+void TaskGenerator::generate()
 {
-  for (int i = 0; i < n; i++) {
-    bool valid_date = (l_shipdate[i] >= 726350 && l_shipdate[i] <= 729313);
-    bool valid_quantity = (l_quantity[i] < 70.0);
-    bool valid_discount = (l_discount[i] >= 0.01 && l_discount[i] < 0.08);
-    l_quantity[i] = (valid_date && valid_quantity && valid_discount) ? 1 : 0;
-  }
+  std::cout << "Generate" << std::endl;
 }
 
-void multiply_cpu(int n, double* l_quantity, double* l_extendedprice, double* l_discount)
+void TaskGenerator::run(int r, bool overwrite_file)
 {
-  for (int i = 0; i < n; i++) {
-    l_extendedprice[i] = (l_quantity[i]) ? l_extendedprice[i]*l_discount[i] : 0;
-  }
-}
-
-int main(int argc, char** argv)
-{
-  float r = 1.0;
-  bool overwrite_file = false;
-  if (argc > 1) {
-    r = atof(argv[1]);
-    std::cout << "Ratio: " << r << std::endl;
-    if (argc > 2)
-    {
-      std::string str(argv[2]);
-      if (str == "overwrite") overwrite_file = true;
-    }
-  } else { std::cout << "Ratio set to default: " << r << std::endl; }
-  
   LineItem lineitem;
   Parser p;
   p.parse(LINEITEM_PATH, lineitem, overwrite_file);
@@ -97,6 +75,4 @@ int main(int argc, char** argv)
   cudaFree(l_extendedprice);
   cudaFree(l_shipdate);
   cudaFree(l_discount);
-  
-  return 0;
 }
