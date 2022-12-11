@@ -1,4 +1,4 @@
 alias build='cd unified_queue/build/ && cmake .. && make && cd -'
 alias clean='cd unified_queue/build/ && make clean && cd -'
 alias run='./unified_queue/build/src/main'
-alias profile='sudo nvprof ./unified_queue/build/apps/q6'
+alias profile='sudo nvprof ./unified_queue/build/src/main'
