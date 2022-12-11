@@ -38,4 +38,5 @@
 # Specific data
 /*/data/*.tbl
 /*/data/*.bin
-
+data/*.bin
+data/*.tbl
