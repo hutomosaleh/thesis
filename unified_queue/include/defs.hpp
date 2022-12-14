@@ -1,5 +1,8 @@
 #pragma once
 
+// Cuda
+#define BLOCK_SIZE 256
+
 // Path
 #define LINEITEM_PATH "data/lineitem.tbl"
 
@@ -14,3 +17,7 @@
 // Task
 #define CPU_TASK 0
 #define GPU_TASK 1
+
+// Mode
+#define MALLOC
+//#define MALLOCMANAGED
