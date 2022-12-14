@@ -46,14 +46,15 @@ int Parser::dtoi(std::string str) {
 
 void Parser::parse(std::string path, LineItem& record, bool overwrite_file)
 { 
+  std::cout << "Generating TPCH Data" << std::endl;
   bool file_exists = true;
   if (overwrite_file)
   {
-    std::ofstream l_quantity ("cpp_tpch_q6/data/l_quantity.bin", std::ios::binary | std::ios::app);
-    std::ofstream l_extendedprice ("cpp_tpch_q6/data/l_extendedprice.bin", std::ios::binary | std::ios::app);
-    std::ofstream l_discount ("cpp_tpch_q6/data/l_discount.bin", std::ios::binary | std::ios::app);
-    std::ofstream l_shipdate ("cpp_tpch_q6/data/l_shipdate.bin", std::ios::binary | std::ios::app);
-    std::ofstream size ("cpp_tpch_q6/data/size.bin", std::ios::binary | std::ios::app);
+    std::ofstream l_quantity ("data/l_quantity.bin", std::ios::binary | std::ios::app);
+    std::ofstream l_extendedprice ("data/l_extendedprice.bin", std::ios::binary | std::ios::app);
+    std::ofstream l_discount ("data/l_discount.bin", std::ios::binary | std::ios::app);
+    std::ofstream l_shipdate ("data/l_shipdate.bin", std::ios::binary | std::ios::app);
+    std::ofstream size ("data/size.bin", std::ios::binary | std::ios::app);
     std::cout << "Parsing lineitem" << std::endl;
 
     std::fstream buffer(path);
@@ -93,10 +94,10 @@ void Parser::parse(std::string path, LineItem& record, bool overwrite_file)
   }
 
   // Write binary to variables
-  bin2ptr("cpp_tpch_q6/data/l_quantity.bin", &record.l_quantity);
-  bin2ptr("cpp_tpch_q6/data/l_extendedprice.bin", &record.l_extendedprice);
-  bin2ptr("cpp_tpch_q6/data/l_discount.bin", &record.l_discount);
-  bin2ptr("cpp_tpch_q6/data/l_shipdate.bin", &record.l_shipdate);
-  bin2ptr("cpp_tpch_q6/data/size.bin", &record.size);
+  bin2ptr("data/l_quantity.bin", &record.l_quantity);
+  bin2ptr("data/l_extendedprice.bin", &record.l_extendedprice);
+  bin2ptr("data/l_discount.bin", &record.l_discount);
+  bin2ptr("data/l_shipdate.bin", &record.l_shipdate);
+  bin2ptr("data/size.bin", &record.size);
 }
 

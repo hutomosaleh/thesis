@@ -7,7 +7,7 @@
 #include "parser.hpp"
 #include "gpu_kernels.h"
 
-#define LINEITEM_PATH "cpp_tpch_q6/data/lineitem.tbl"
+#define LINEITEM_PATH "data/lineitem.tbl"
 
 void check_cpu(int n, double* l_quantity, int* l_shipdate, double* l_discount)
 {
