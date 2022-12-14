@@ -12,9 +12,9 @@
 void check_cpu(int n, double* l_quantity, int* l_shipdate, double* l_discount)
 {
   for (int i = 0; i < n; i++) {
-    bool valid_date = (l_shipdate[i] >= 726350 && l_shipdate[i] <= 729313);
-    bool valid_quantity = (l_quantity[i] < 70.0);
-    bool valid_discount = (l_discount[i] >= 0.01 && l_discount[i] < 0.08);
+    bool valid_date = (l_shipdate[i] >= 727841 && l_shipdate[i] <= 727841);
+    bool valid_quantity = (l_quantity[i] < 24.0);
+    bool valid_discount = (l_discount[i] >= 0.05 && l_discount[i] < 0.07);
     l_quantity[i] = (valid_date && valid_quantity && valid_discount) ? 1 : 0;
   }
 }
@@ -79,18 +79,30 @@ int main(int argc, char** argv)
   check<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_shipdate+N_cpu, l_discount+N_cpu);
   cudaDeviceSynchronize();
 
+  auto total1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+
   multiply_cpu(N_cpu, l_quantity, l_extendedprice, l_discount);
   multiply<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_extendedprice+N_cpu, l_discount+N_cpu);
   cudaDeviceSynchronize();
 
-  auto total = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-  std::cout << "Total time: " << total << " ms" << std::endl;
+  auto total2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+  std::cout << "Total time 1: " << total1 << " ms" << std::endl;
+  std::cout << "Total time 2: " << total1 << " ms" << std::endl;
 
   // Read out 'query result'
   int amount = 0;
-  for (int i = 0; i < N; i++) if (l_extendedprice[i]) amount++;
+  double result = 0;
+  for (int i = 0; i < N; i++)
+  {
+    if (l_extendedprice[i]) 
+    {
+      amount++;
+      result += l_extendedprice[i];
+    }
+  }
   std::cout << "Query hit amount: " << amount << std::endl;
   std::cout << "Total tuples: " << N << std::endl;
+  std::cout << std::fixed <<  "Result: " << result << std::endl;
 
   // Free memory
   cudaFree(l_discount);

@@ -5,3 +5,6 @@ add_library(gpu_kernels gpu_kernels.cu parser.cpp ${HEADERS})
 target_include_directories(gpu_kernels PUBLIC ../include)
 
 target_compile_features(gpu_kernels PUBLIC cxx_std_11)
+
+add_executable(main q6.cu)
+target_link_libraries(main PRIVATE gpu_kernels)
