@@ -30,11 +30,11 @@ do
       break
       ;;
     "Run")
-      ./$TARGET/build/src/main $1 
+      ./$TARGET/build/src/main $1 $2
       break
       ;;
     "Profile")
-      sudo nvprof ./$TARGET/build/src/main $1 
+      sudo nvprof ./$TARGET/build/src/main $1 $2
       break
       ;;
     "Clean")
