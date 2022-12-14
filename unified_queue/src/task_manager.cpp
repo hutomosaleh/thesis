@@ -1,5 +1,6 @@
 #include "task_manager.hpp"
 
+#include <chrono>
 #include <deque>
 #include <ios>
 #include <mutex>
@@ -10,6 +11,18 @@
 #include "task.h"
 
 TaskManager::TaskManager(std::deque<Task> queue) : _queue(queue) {};
+
+void TaskManager::read_stats()
+{
+  std::cout << "\n ==== Task Manager Stats ====" << std::endl;
+  std::cout << "CPU Calls: " << _cpu_calls << std::endl;
+  std::cout << "CPU Total Time: " << _cpu_time << std::endl;
+  std::cout << "GPU Calls: " << _gpu_calls << std::endl;
+  std::cout << "GPU Total Time: " << _gpu_time << std::endl;
+  std::cout << "Total Time: " << _gpu_time + _cpu_time << std::endl;
+  std::cout << "Result: " << std::fixed << _result << std::endl;
+  std::cout << "Hits: " << _hits << std::endl;
+}
 
 bool TaskManager::_pop_task(Task &task)
 {
@@ -35,10 +48,12 @@ void TaskManager::start_device_consumer()
       std::cout << "Queue is empty, stopping device GPU thread" << std::endl;
       break;
     }
+    _gpu_calls++;
+    auto start = std::chrono::steady_clock::now(); 
     task.consume(GPU_TASK);
+    _gpu_time += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
     _hits += task.get_hits();
     for (double r = _result; !_result.compare_exchange_weak(r, r+task.get_result()););
-
   }
 }
 
@@ -52,7 +67,10 @@ void TaskManager::start_host_consumer()
       std::cout << "Queue is empty, stopping device CPU thread" << std::endl;
       break;
     }
+    _cpu_calls++;
+    auto start = std::chrono::steady_clock::now();
     task.consume(CPU_TASK);
+    _cpu_time += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
     _hits += task.get_hits();
     for (double r = _result; !_result.compare_exchange_weak(r, r+task.get_result()););
   }
@@ -75,8 +93,4 @@ void TaskManager::run()
   {
     t.join();
   }
-
-  // Return results
-  std::cout << "Tasks done, result: " << std::fixed << _result << std::endl;
-  std::cout << "Tasks done, hits: " << _hits << std::endl;
 }

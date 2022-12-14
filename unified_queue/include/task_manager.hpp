@@ -13,6 +13,7 @@ class TaskManager
     void run();
     void start_host_consumer();
     void start_device_consumer();
+    void read_stats();
 
     TaskManager(std::deque<Task>);
 
@@ -22,9 +23,10 @@ class TaskManager
     std::mutex _m;
     std::deque<Task> _queue;
     std::atomic<int> _hits = {0};
+    std::atomic<int> _gpu_time = {0};
+    std::atomic<int> _gpu_calls = {0};
+    std::atomic<int> _cpu_time = {0};
+    std::atomic<int> _cpu_calls = {0};
     std::atomic<double> _result = {0};
     std::vector<std::thread> _thread_pool;
-    bool _gpu_idle;
-    bool _cpu_idle;
-
 };

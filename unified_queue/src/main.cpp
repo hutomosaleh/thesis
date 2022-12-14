@@ -29,5 +29,6 @@ int main(int argc, char** argv)
   // Start consuming tasks
   TaskManager manager(queue);
   manager.run();
+  manager.read_stats();
   return 0;
 }
