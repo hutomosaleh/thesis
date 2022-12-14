@@ -16,12 +16,14 @@ void TaskManager::read_stats()
 {
   std::cout << "\n ==== Task Manager Stats ====" << std::endl;
   std::cout << "CPU Calls: " << _cpu_calls << std::endl;
-  std::cout << "CPU Total Time: " << _cpu_time << std::endl;
+  std::cout << "CPU Total Time: " << _cpu_time << "ms" << std::endl;
   std::cout << "GPU Calls: " << _gpu_calls << std::endl;
-  std::cout << "GPU Total Time: " << _gpu_time << std::endl;
-  std::cout << "Total Time: " << _gpu_time + _cpu_time << std::endl;
+  std::cout << "GPU Total Time: " << _gpu_time << "ms" << std::endl;
+  std::cout << "Total Time: " << _gpu_time + _cpu_time << "ms" << std::endl;
   std::cout << "Result: " << std::fixed << _result << std::endl;
   std::cout << "Hits: " << _hits << std::endl;
+  std::cout << "Total tuples: " << TASK_SIZE*(_cpu_calls+_gpu_calls) << std::endl;
+
 }
 
 bool TaskManager::_pop_task(Task &task)
@@ -76,17 +78,21 @@ void TaskManager::start_host_consumer()
   }
 }
 
-void TaskManager::run()
+void TaskManager::run(int type)
 {
-  std::thread threads[2];
-
-  // Spawn CPU Thread
-  std::cout << "Spawning cpu thread" << std::endl;
-  threads[0] = std::thread(&TaskManager::start_host_consumer, this);
-
-  // Spawn GPU Thread
-  std::cout << "Spawning gpu thread" << std::endl;
-  threads[1] = std::thread(&TaskManager::start_device_consumer, this);
+  std::vector<std::thread> threads;
+  switch (type)
+  {
+    case CPU_TASK:
+      threads.push_back(std::thread(&TaskManager::start_host_consumer, this));
+      break;
+    case GPU_TASK:
+      threads.push_back(std::thread(&TaskManager::start_device_consumer, this));
+      break;
+    default:
+      threads.push_back(std::thread(&TaskManager::start_host_consumer, this));
+      threads.push_back(std::thread(&TaskManager::start_device_consumer, this));
+  }
 
   // Join all threads
   for (auto &t : threads)

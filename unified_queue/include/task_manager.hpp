@@ -10,7 +10,7 @@
 class TaskManager
 {
   public:
-    void run();
+    void run(int);
     void start_host_consumer();
     void start_device_consumer();
     void read_stats();

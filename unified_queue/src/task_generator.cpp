@@ -21,7 +21,6 @@ void TaskGenerator::_add_to_queue(Task task)
 
 std::deque<Task> TaskGenerator::generate(bool overwrite_file)
 {
-  std::cout << "Generating TPCH Data" << std::endl;
   Parser p;
   p.parse(LINEITEM_PATH, _lineitem, overwrite_file);
 
