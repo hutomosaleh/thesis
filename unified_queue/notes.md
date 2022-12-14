@@ -1,3 +1,10 @@
+# Observation
+- cudaMallocManaged is much slower than cudaMalloc
+- Task size influences the time result by a lot
+  - 20000 is great for GPU, but slow on CPU
+  - 10000 is good for both GPU and CPU
+  - Smaller task size gives large overhead on GPU but not in CPU
+
 # TODOs
 - Check out Rez's implementation
   - How is the task chunk
