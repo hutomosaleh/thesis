@@ -1,7 +1,6 @@
 #include "task.h"
 
 #include <atomic>
-#include <cuda_device_runtime_api.h>
 #include <iostream>
 #include <vector>
 
@@ -32,7 +31,6 @@ void Task::consume(int type)
   {
     case CPU_TASK:
 
-      //std::cout << "cpu_consume start " << _id << std::endl;
       cudaMallocHost(&q, _size*sizeof(double));
       cudaMallocHost(&e, _size*sizeof(double));
       cudaMallocHost(&d, _size*sizeof(double));
@@ -58,15 +56,18 @@ void Task::consume(int type)
       cudaFree(e);
       cudaFree(s);
       cudaFree(d);
-      //std::cout << "cpu_consume end " << _id << std::endl;
+
+      break;
+
     case GPU_TASK:
 
-      std::cout << "gpu_consume start " << _id << std::endl;
+      // Allocate host memory
       double* q_h = (double*)malloc(_size*sizeof(double));
       double* e_h = (double*)malloc(_size*sizeof(double));
       double* d_h = (double*)malloc(_size*sizeof(double));
       int* s_h = (int*)malloc(_size*sizeof(int));
       
+      // Allocate device memory
       cudaMalloc(&q, _size*sizeof(double));
       cudaMalloc(&e, _size*sizeof(double));
       cudaMalloc(&d, _size*sizeof(double));
@@ -78,6 +79,8 @@ void Task::consume(int type)
         d_h[i] = _data[i].discount;
         s_h[i] = _data[i].shipdate;
       }
+
+      // Copy host to device
       cudaMemcpy(q, q_h, _size*sizeof(double), cudaMemcpyHostToDevice);
       cudaMemcpy(e, e_h, _size*sizeof(double), cudaMemcpyHostToDevice);
       cudaMemcpy(d, d_h, _size*sizeof(double), cudaMemcpyHostToDevice);
@@ -88,7 +91,11 @@ void Task::consume(int type)
       check<<<numBlocks, blockSize>>>(_size, q, s, d);
       multiply<<<numBlocks, blockSize>>>(_size, q, e, d);
       cudaDeviceSynchronize();
-      cudaMemcpy(e, e_h, _size*sizeof(double), cudaMemcpyDeviceToHost);
+
+      // Copy device result to host
+      cudaMemcpy(e_h, e, _size*sizeof(double), cudaMemcpyDeviceToHost);
+
+      // Compare for query hits and update results
       for (int i = 0; i < _size; i++)
       {
         if (e_h[i])
@@ -97,11 +104,18 @@ void Task::consume(int type)
           _result += e_h[i];
         }
       }
+
+      // Release memory
       cudaFree(q);
       cudaFree(e);
       cudaFree(s);
       cudaFree(d);
-      std::cout << "gpu_consume end " << _id << std::endl;
+      free(q_h);
+      free(e_h);
+      free(s_h);
+      free(d_h);
+
+      break;
   }
 }
 

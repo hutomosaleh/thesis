@@ -34,10 +34,10 @@ std::deque<Task> TaskGenerator::generate(bool overwrite_file)
     for(int j=0; j< _task_size; j++)
     {
       TupleQ6 tuple {
-        _lineitem.l_quantity[i],
-        _lineitem.l_extendedprice[i],
-        _lineitem.l_discount[i],
-        _lineitem.l_shipdate[i]
+        _lineitem.l_quantity[i+j],
+        _lineitem.l_extendedprice[i+j],
+        _lineitem.l_discount[i+j],
+        _lineitem.l_shipdate[i+j]
       };
       task.add(tuple);
     }
