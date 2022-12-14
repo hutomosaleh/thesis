@@ -1,12 +1,16 @@
 set(HEADERS
-  "${PROJECT_SOURCE_DIR}/include/task_generator.h"
+  "${PROJECT_SOURCE_DIR}/include/task_generator.hpp"
+  "${PROJECT_SOURCE_DIR}/include/task_manager.hpp"
+  "${PROJECT_SOURCE_DIR}/include/task.h"
   "${PROJECT_SOURCE_DIR}/include/cpu_kernels.hpp"
   "${PROJECT_SOURCE_DIR}/include/gpu_kernels.h"
   "${PROJECT_SOURCE_DIR}/include/parser.hpp"
 )
 
 add_library(gpu_kernels 
-  task_generator.cu
+  task_generator.cpp
+  task_manager.cpp
+  task.cu
   cpu_kernels.cpp 
   gpu_kernels.cu 
   parser.cpp 

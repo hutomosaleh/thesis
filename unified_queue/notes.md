@@ -1,31 +1,54 @@
+# TODOs
+- Check out Rez's implementation
+  - How is the task chunk
+    - Chunk consists of dataArray of tuple values
+- Implement CPU/GPU kernels into tasks
+- Implement task finish callback
+- Implement task manager
+  - Implement threads and GPU states
+  - Implement locks on thread and GPU states
+- Implement task generator
+  - Implement queue of tasks
+
 Questions:
 - How to know if process is idle?
 - What data type is a task queue?
 - What data type is a task?
-
-Ideas:
-- Tuple number is task number
+- How big is the data chunk?
+- How to save data inside Task Class?
+  - The result is whats important
 
 Concern:
-- Is checking process state even possible?
-- How much overhead for task queue and process state check?
+- Is checking process state even possible? Yes, with self implementation
+- How much overhead for task queue and process state check? Need to check our own
 
-## Structure:
-- main
-  - initialize data set
-  - run task generator
-  - run task scheduler
-- task generator
-  - input: raw dataset
-  - generate task class
-  - generate task queue
-  - return queue
-- task
-  - has state variable
-  - consists of CPU or GPU function
-  - callbacks are called after function finishes
+# Structure
+
+## main
+- initialize data set
+- run task generator
+- run task manager 
+
+## task generator
+- input: raw dataset, chunk size
+- generate task class
+- generate task queue
+- return queue
+
+## task manager
+- spawn two threads for CPU and GPU
+- each thread consumes tasks and appends results
+
+## task
+- tuple: double, double, double, int : 28 Byte
+- each task has a size
+- holds data and query
+- consists of CPU or GPU function (Hard coded)
 
 # Ideas
+
+## How to organize data chunks for processing
+- Use variable data chunk
 
 ## How to check if task is done
 - Use variable to indicate if task is done

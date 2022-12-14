@@ -1,7 +1,10 @@
+#include <deque>
 #include <iostream>
 
-#include "task_generator.h"
+#include "defs.hpp"
 #include "data_types.hpp"
+#include "task_generator.hpp"
+#include "task_manager.hpp"
 
 int main(int argc, char** argv)
 {
@@ -17,7 +20,14 @@ int main(int argc, char** argv)
     }
   } else { std::cout << "Ratio set to default: " << r << std::endl; }
   
-  TaskGenerator task;
-  task.run(r, overwrite_file);
+  int task_size = TASK_SIZE;
+
+  // Generate tasks
+  TaskGenerator task(task_size);
+  std::deque<Task> queue = task.generate(overwrite_file);
+
+  // Start consuming tasks
+  TaskManager manager(queue);
+  manager.run();
   return 0;
 }

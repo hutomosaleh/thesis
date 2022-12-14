@@ -8,3 +8,10 @@ struct LineItem {
   int* size;
 };
 
+struct TupleQ6 {
+  double quantity;
+  double extendedprice;
+  double discount;
+  int shipdate;
+};
+
