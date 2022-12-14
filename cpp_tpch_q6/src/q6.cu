@@ -72,22 +72,25 @@ int main(int argc, char** argv)
   int numBlocks = (N_gpu + blockSize - 1) / blockSize;
   std::cout << "cpu:gpu ratio: " << r << ":" << (1-r) << std::endl;
 
-  auto start = std::chrono::steady_clock::now(); 
+  auto start1 = std::chrono::steady_clock::now(); 
 
   std::cout << "Running kernels" << std::endl;
   check_cpu(N_cpu, l_quantity, l_shipdate, l_discount);
   check<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_shipdate+N_cpu, l_discount+N_cpu);
   cudaDeviceSynchronize();
 
-  auto total1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+  auto total1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start1).count();
+  auto start2 = std::chrono::steady_clock::now(); 
 
   multiply_cpu(N_cpu, l_quantity, l_extendedprice, l_discount);
   multiply<<<numBlocks, blockSize>>>(N_gpu, l_quantity+N_cpu, l_extendedprice+N_cpu, l_discount+N_cpu);
   cudaDeviceSynchronize();
 
-  auto total2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-  std::cout << "Total time 1: " << total1 << " ms" << std::endl;
-  std::cout << "Total time 2: " << total1 << " ms" << std::endl;
+  auto total2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start2).count();
+  auto total3 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start1).count();
+  std::cout << "Total time check: " << total1 << " ms" << std::endl;
+  std::cout << "Total time multiply: " << total2 << " ms" << std::endl;
+  std::cout << "Total time : " << total3 << " ms" << std::endl;
 
   // Read out 'query result'
   int amount = 0;
