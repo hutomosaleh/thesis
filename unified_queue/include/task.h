@@ -8,9 +8,9 @@
 class Task
 {
   public:
-    void set_id(int);
+    void set_id(int id);
     void add(TupleQ6);
-    void consume(int);
+    void consume(int type);
     int get_hits();
     double get_result();
 

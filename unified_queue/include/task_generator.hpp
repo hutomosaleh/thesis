@@ -8,9 +8,9 @@
 class TaskGenerator
 {
   public:
-    std::deque<Task> generate(bool);
+    std::deque<Task> generate(bool new_tbl);
 
-    TaskGenerator(int);
+    TaskGenerator(int size);
   
   private:
     void _add_to_queue(Task);

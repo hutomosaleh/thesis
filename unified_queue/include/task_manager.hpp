@@ -10,12 +10,12 @@
 class TaskManager
 {
   public:
-    void run(int);
+    void run(int type);
     void start_host_consumer();
     void start_device_consumer();
     void read_stats();
 
-    TaskManager(std::deque<Task>);
+    TaskManager(std::deque<Task> queue);
 
   private:
     bool _pop_task(Task&);

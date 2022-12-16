@@ -19,10 +19,10 @@ void TaskGenerator::_add_to_queue(Task task)
   _queue.push_front(task);
 }
 
-std::deque<Task> TaskGenerator::generate(bool overwrite_file)
+std::deque<Task> TaskGenerator::generate(bool new_tbl)
 {
   Parser p;
-  p.parse(LINEITEM_PATH, _lineitem, overwrite_file);
+  p.parse(LINEITEM_PATH, _lineitem, new_tbl);
 
   // Divide lineitem into chunks of tasks
   int id = 0;
