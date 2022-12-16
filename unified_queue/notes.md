@@ -1,9 +1,24 @@
 # Observation
-- cudaMallocManaged is much slower than cudaMalloc
-- Task size influences the time result by a lot
+- Auto queue grab
+  - Does NOT yield better performance
+  - Task size influences the proportion of CPU/GPU grab amount
+- Task size influences the time result by a lot (Need more testing)
   - 20000 is great for GPU, but slow on CPU
   - 10000 is good for both GPU and CPU
-  - Smaller task size gives large overhead on GPU but not in CPU
+  - Smaller task size gives large overhead on GPU but not much in CPU
+- cudaMallocManaged is much slower than cudaMalloc
+  - Co-process ~450ms vs ~300ms | GPU only ~650ms vs ~60ms
+  - Due to GPU always accessing it from main memory
+- Compared to toy example (cudaMallocManaged), it is faster
+  - Previous timed test on toy example did not include allocation time
+- (Quick test) More CPU threads decrease CPU time???
+  - Might be a fault in the implementation
+
+# Future TODOs
+- Implement thorough tests with average etc
+- Set parameters as variables instead of definitions
+- Find a way to get optimized paramaters
+- Open up for other benchmark tests (other than q6)
 
 # TODOs
 - Check out Rez's implementation
