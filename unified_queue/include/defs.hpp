@@ -19,5 +19,4 @@
 #define GPU_TASK 1
 
 // Mode
-#define MALLOC
-//#define MALLOCMANAGED
+#define MALLOCMANAGED

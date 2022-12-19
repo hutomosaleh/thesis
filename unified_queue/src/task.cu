@@ -58,8 +58,44 @@ void Task::consume(int type)
       cudaFree(d);
 
       break;
+#ifdef MALLOCMANAGED
+    case GPU_TASK:
 
-#ifdef MALLOC
+      // Allocate device memory
+      cudaMallocManaged(&q, _size*sizeof(double));
+      cudaMallocManaged(&e, _size*sizeof(double));
+      cudaMallocManaged(&d, _size*sizeof(double));
+      cudaMallocManaged(&s, _size*sizeof(int));
+      for(int i=0; i<_size; ++i)
+      {
+        q[i] = _data[i].quantity;
+        e[i] = _data[i].extendedprice;
+        d[i] = _data[i].discount;
+        s[i] = _data[i].shipdate;
+      }
+
+      int block_number = (_size + BLOCK_SIZE - 1) / BLOCK_SIZE;
+      check<<<block_number, BLOCK_SIZE>>>(_size, q, s, d);
+      multiply<<<block_number, BLOCK_SIZE>>>(_size, q, e, d);
+      cudaDeviceSynchronize();
+
+      // Compare for query hits and update results
+      for (int i = 0; i < _size; i++)
+      {
+        if (e[i])
+        {
+          _hits++;
+          _result += e[i];
+        }
+      }
+
+      // Release memory
+      cudaFree(q);
+      cudaFree(e);
+      cudaFree(s);
+      cudaFree(d);
+      break;
+#else
     case GPU_TASK:
 
       // Allocate host memory
@@ -115,45 +151,6 @@ void Task::consume(int type)
       free(s_h);
       free(d_h);
 
-      break;
-#endif
-
-#ifdef MALLOCMANAGED
-    case GPU_TASK:
-      
-      // Allocate device memory
-      cudaMallocManaged(&q, _size*sizeof(double));
-      cudaMallocManaged(&e, _size*sizeof(double));
-      cudaMallocManaged(&d, _size*sizeof(double));
-      cudaMallocManaged(&s, _size*sizeof(int));
-      for(int i=0; i<_size; ++i)
-      {
-        q[i] = _data[i].quantity;
-        e[i] = _data[i].extendedprice;
-        d[i] = _data[i].discount;
-        s[i] = _data[i].shipdate;
-      }
-
-      int block_number = (_size + BLOCK_SIZE - 1) / BLOCK_SIZE;
-      check<<<block_number, BLOCK_SIZE>>>(_size, q, s, d);
-      multiply<<<block_number, BLOCK_SIZE>>>(_size, q, e, d);
-      cudaDeviceSynchronize();
-
-      // Compare for query hits and update results
-      for (int i = 0; i < _size; i++)
-      {
-        if (e[i])
-        {
-          _hits++;
-          _result += e[i];
-        }
-      }
-
-      // Release memory
-      cudaFree(q);
-      cudaFree(e);
-      cudaFree(s);
-      cudaFree(d);
       break;
 #endif
   }
