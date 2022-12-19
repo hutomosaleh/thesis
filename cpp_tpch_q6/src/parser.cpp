@@ -1,15 +1,10 @@
+#include "parser.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-#include "parser.hpp"
-
-#define QUANTITY 4
-#define EXTENDED_PRICE 5
-#define DISCOUNT 6
-#define SHIPDATE 10
-#define NUM_COLUMN 16
-#define DELIMITER '|'
+#include "defs.hpp"
 
 template<typename T>
 void bin2ptr(const char* filename, T **ptr)
