@@ -46,7 +46,6 @@ int Parser::dtoi(std::string str) {
 
 void Parser::parse(std::string path, LineItem& record, bool overwrite_file)
 { 
-  bool file_exists = true;
   if (overwrite_file)
   {
     std::ofstream l_quantity ("data/l_quantity.bin", std::ios::binary | std::ios::app);
