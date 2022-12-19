@@ -21,7 +21,9 @@ class TaskManager
     bool _pop_task(Task&);
 
     std::mutex _m;
+    int _queue_size;
     std::deque<Task> _queue;
+    std::atomic<int> _current_index = {0};
     std::atomic<int> _hits = {0};
     std::atomic<int> _gpu_time = {0};
     std::atomic<int> _gpu_calls = {0};

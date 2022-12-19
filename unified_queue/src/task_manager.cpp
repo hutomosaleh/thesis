@@ -10,7 +10,7 @@
 #include "defs.hpp"
 #include "task.h"
 
-TaskManager::TaskManager(std::deque<Task> queue) : _queue(queue) {};
+TaskManager::TaskManager(std::deque<Task> queue) : _queue_size(queue.size()), _queue(queue) {};
 
 void TaskManager::read_stats()
 {
@@ -29,14 +29,11 @@ void TaskManager::read_stats()
 bool TaskManager::_pop_task(Task &task)
 {
   bool success = false;
-  _m.lock();
-  if (!_queue.empty())
+  if (_current_index < (int)_queue.size())
   {
-    task = _queue.back();
-    _queue.pop_back();
+    task = _queue[_current_index++];
     success = true;
   }
-  _m.unlock();
   return success;
 }
 
