@@ -1,6 +1,7 @@
 #include "task.h"
 
 #include <atomic>
+#include <driver_types.h>
 #include <iostream>
 #include <vector>
 
@@ -20,7 +21,7 @@ void Task::add(TupleQ6 tuple)
   ++_size;
 }
 
-void Task::consume(int type)
+void Task::consume(int type, cudaStream_t stream)
 {
   double* q;
   double* e;
@@ -155,8 +156,16 @@ void Task::consume(int type)
       cudaMemcpy(s, s_h, _size*sizeof(int), cudaMemcpyHostToDevice);
 
       int block_number = (_size + BLOCK_SIZE - 1) / BLOCK_SIZE;
-      check<<<block_number, BLOCK_SIZE>>>(_size, q, s, d);
-      multiply<<<block_number, BLOCK_SIZE>>>(_size, q, e, d);
+      if (stream != cudaStreamLegacy)
+      {
+        check<<<block_number, BLOCK_SIZE, 0, stream>>>(_size, q, s, d);
+        multiply<<<block_number, BLOCK_SIZE, 0, stream>>>(_size, q, e, d);
+      }
+      else
+      {
+        check<<<block_number, BLOCK_SIZE>>>(_size, q, s, d);
+        multiply<<<block_number, BLOCK_SIZE>>>(_size, q, e, d);
+      }
 
       // Copy device result to host
       cudaMemcpy(e_h, e, _size*sizeof(double), cudaMemcpyDeviceToHost);

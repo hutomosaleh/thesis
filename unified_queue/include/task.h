@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <cuda_runtime_api.h>
 
 #include "data_types.hpp"
 
@@ -10,7 +11,7 @@ class Task
   public:
     void set_id(int id);
     void add(TupleQ6);
-    void consume(int type);
+    void consume(int type, cudaStream_t stream=cudaStreamLegacy);
     int get_hits();
     double get_result();
 
