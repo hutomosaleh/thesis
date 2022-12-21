@@ -48,14 +48,12 @@ void TaskManager::start_hybrid_consumer()
 {
   Task task;
   Task task_gpu;
-  cudaStream_t stream;
-  cudaStreamCreate(&stream);
   while (true)
   {
     if (!_pop_task(task_gpu)) break;
     _gpu_calls++;
     auto start_gpu = std::chrono::steady_clock::now();
-    task_gpu.consume(GPU_TASK, stream);
+    task_gpu.consume(GPU_TASK);
     _gpu_time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start_gpu).count();
     _hits += task_gpu.get_hits();
     for (double r = _result; !_result.compare_exchange_weak(r, r+task_gpu.get_result()););
@@ -67,7 +65,6 @@ void TaskManager::start_hybrid_consumer()
     _hits += task.get_hits();
     for (double r = _result; !_result.compare_exchange_weak(r, r+task.get_result()););
   }
-  cudaStreamDestroy(stream);
 }
 
 void TaskManager::start_device_consumer()
