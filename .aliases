@@ -1,5 +1,7 @@
 alias build='cd unified_queue/build/ && cmake .. && make && cd -'
-alias clean='cd unified_queue/build/ && make clean && cd -'
+alias clean='rm -r unified_queue/build && mkdir unified_queue/build'
 alias run='./unified_queue/build/src/main'
+alias rm_data='rm -r data/*.bin && rm data/lineitem.tbl'
+alias genprof='nsys profile ./unified_queue/build/src/main'
 alias profile='sudo nvprof ./unified_queue/build/src/main'
 alias both='build && run'
