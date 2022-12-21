@@ -77,7 +77,6 @@ void Task::consume(int type)
       int block_number = (_size + BLOCK_SIZE - 1) / BLOCK_SIZE;
       check<<<block_number, BLOCK_SIZE>>>(_size, q, s, d);
       multiply<<<block_number, BLOCK_SIZE>>>(_size, q, e, d);
-      cudaDeviceSynchronize();
 
       // Compare for query hits and update results
       for (int i = 0; i < _size; i++)
@@ -126,7 +125,6 @@ void Task::consume(int type)
       int block_number = (_size + BLOCK_SIZE - 1) / BLOCK_SIZE;
       check<<<block_number, BLOCK_SIZE>>>(_size, q, s, d);
       multiply<<<block_number, BLOCK_SIZE>>>(_size, q, e, d);
-      cudaDeviceSynchronize();
 
       // Copy device result to host
       cudaMemcpy(e_h, e, _size*sizeof(double), cudaMemcpyDeviceToHost);

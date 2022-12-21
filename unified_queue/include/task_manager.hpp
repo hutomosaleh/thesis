@@ -13,14 +13,15 @@ class TaskManager
     void run(int type);
     void start_host_consumer();
     void start_device_consumer();
+    void start_hybrid_consumer();
     void read_stats();
 
-    TaskManager(std::deque<Task> queue);
+    TaskManager(std::deque<Task> queue, int loops);
 
   private:
     bool _pop_task(Task&);
 
-    std::mutex _m;
+    int _loops;
     int _queue_size;
     std::deque<Task> _queue;
     std::atomic<int> _current_index = {0};
