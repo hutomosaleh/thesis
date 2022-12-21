@@ -40,3 +40,4 @@
 /*/data/*.bin
 data/*.bin
 data/*.tbl
+tests/
