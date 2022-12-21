@@ -20,3 +20,4 @@
 
 // Mode
 // #define MALLOCMANAGED
+// #define MALLOCHOST

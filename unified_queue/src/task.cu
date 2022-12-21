@@ -29,6 +29,7 @@ void Task::consume(int type)
 
   switch (type)
   {
+#ifdef MALLOCHOST
     case CPU_TASK:
 
       cudaMallocHost(&q, _size*sizeof(double));
@@ -52,12 +53,43 @@ void Task::consume(int type)
           _result += e[i];
         }
       }
-      cudaFree(q);
-      cudaFree(e);
-      cudaFree(s);
-      cudaFree(d);
+      cudaFreeHost(q);
+      cudaFreeHost(e);
+      cudaFreeHost(s);
+      cudaFreeHost(d);
 
       break;
+#else
+    case CPU_TASK:
+
+      q = (double*) malloc(_size*sizeof(double));
+      e = (double*) malloc(_size*sizeof(double));
+      d = (double*) malloc(_size*sizeof(double));
+      s = (int*) malloc(_size*sizeof(int));
+      for(int i=0; i<_size; ++i)
+      {
+        q[i] = _data[i].quantity;
+        e[i] = _data[i].extendedprice;
+        d[i] = _data[i].discount;
+        s[i] = _data[i].shipdate;
+      }
+      check_cpu(_size, q, s, d);
+      multiply_cpu(_size, q, e, d);
+      for (int i = 0; i < _size; i++)
+      {
+        if (e[i])
+        {
+          _hits++;
+          _result += e[i];
+        }
+      }
+      free(q);
+      free(e);
+      free(s);
+      free(d);
+
+      break;
+#endif
 #ifdef MALLOCMANAGED
     case GPU_TASK:
 
