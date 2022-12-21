@@ -1,3 +1,9 @@
+# TODOs
+- Multithreading slows down the process, look at (async)[https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#asynchronous-concurrent-execution]
+- Implement async version of unified queue
+  - Make two streams `cudaStream_t`
+  - Put CPU computation in one stream and GPU computation on another stream
+
 # Observation
 - Auto queue grab
   - Does NOT yield better performance
