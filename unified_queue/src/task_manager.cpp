@@ -22,15 +22,15 @@ void TaskManager::read_stats()
 {
   std::cout << "\n ==== Task Manager Stats ====" << std::endl;
   std::cout << "CPU Calls: " << _cpu_calls << std::endl;
-  std::cout << "CPU Total Time Avg: " << get_avg(_cpu_time, _loops) << " ms" << std::endl;
   std::cout << "GPU Calls: " << _gpu_calls << std::endl;
-  std::cout << "GPU Total Time Avg: " << get_avg(_gpu_time, _loops) << " ms" << std::endl;
   std::cout << "Total Time: " << (double)(_gpu_time + _cpu_time) / 1e3 << " ms" << std::endl;
-  std::cout << "Total Time per loop avg: " << get_avg(_gpu_time+_cpu_time, _loops) << " ms" << std::endl;
+  std::cout << "CPU/GPU Time ratio: " << get_avg(_cpu_time, _cpu_calls) / get_avg(_gpu_time, _gpu_calls) << std::endl;
+  std::cout << "CPU Total Time Avg: " << get_avg(_cpu_time, _cpu_calls) << " ms / call" << std::endl;
+  std::cout << "GPU Total Time Avg: " << get_avg(_gpu_time, _gpu_calls) << " ms / call" << std::endl;
+  std::cout << "Total Time Avg: " << get_avg(_gpu_time+_cpu_time, _loops) << " ms / loop" << std::endl;
   std::cout << "Result: " << std::fixed << _result << std::endl;
   std::cout << "Hits: " << _hits << std::endl;
   std::cout << "Total tuples: " << TASK_SIZE*(_cpu_calls+_gpu_calls) << std::endl;
-
 }
 
 bool TaskManager::_pop_task(Task &task)
@@ -113,7 +113,12 @@ void TaskManager::run(int type)
         start_device_consumer();
         break;
       default:
-        start_hybrid_consumer();
+        //start_hybrid_consumer();
+
+        std::thread threads[2];
+        threads[0] = std::thread(&TaskManager::start_host_consumer, this);
+        threads[1] = std::thread(&TaskManager::start_device_consumer, this);
+        for (int i=0; i<2; i++) threads[i].join();
         break;
     }
   }
