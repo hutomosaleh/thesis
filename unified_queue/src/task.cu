@@ -11,6 +11,13 @@
 #include "cpu_kernels.hpp"
 #include "gpu_kernels.h"
 
+Task::Task() {};
+
+Task::Task(int size)
+{
+  _data.reserve(size);
+}
+
 void Task::set_id(int id)
 {
   _id = id;

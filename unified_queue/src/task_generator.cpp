@@ -29,7 +29,7 @@ std::deque<Task> TaskGenerator::generate(bool new_tbl)
   std::cout << "Generating tasks" << std::endl;
   for(int i=0; i < _lineitem.size[0]; i+=_task_size)
   {
-    Task task;
+    Task task(_task_size);
     for(int j=0; j< _task_size; j++)
     {
       TupleQ6 tuple {

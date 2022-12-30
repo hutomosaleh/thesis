@@ -9,6 +9,8 @@
 class Task
 {
   public:
+    Task();
+    Task(int size);
     void set_id(int id);
     void add(TupleQ6);
     void consume(int type, cudaStream_t* streams=nullptr);
