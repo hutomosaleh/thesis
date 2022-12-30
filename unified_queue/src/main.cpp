@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
   // Generate tasks
   TaskGenerator task(task_size);
-  std::deque<Task> queue = task.generate(overwrite_file);
+  std::deque<Task*> queue = task.generate(overwrite_file);
 
   // Start consuming tasks
   TaskManager manager(queue, loop_count);

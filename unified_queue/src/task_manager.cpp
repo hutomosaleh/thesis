@@ -10,7 +10,7 @@
 #include "defs.hpp"
 #include "task.h"
 
-TaskManager::TaskManager(std::deque<Task> queue, int loops) : _loops(loops), _queue_size(queue.size()), _queue(queue) {};
+TaskManager::TaskManager(std::deque<Task*> queue, int loops) : _loops(loops), _queue_size(queue.size()), _queue(queue) {};
 
 static double get_avg(int time, int rep)
 {
@@ -33,12 +33,12 @@ void TaskManager::read_stats()
   std::cout << "Total tuples: " << TASK_SIZE*(_cpu_calls+_gpu_calls) << std::endl;
 }
 
-bool TaskManager::_pop_task(Task &task)
+bool TaskManager::_pop_task(Task** task)
 {
   bool success = false;
   if (_current_index < (int)_queue.size())
   {
-    task = _queue[_current_index++];
+    *task = _queue[_current_index++];
     success = true;
   }
   return success;
@@ -46,30 +46,30 @@ bool TaskManager::_pop_task(Task &task)
 
 void TaskManager::start_hybrid_consumer()
 {
-  Task task;
-  Task task_gpu;
+  Task* task;
+  Task* task_gpu;
   while (true)
   {
-    if (!_pop_task(task_gpu)) break;
+    if (!_pop_task(&task_gpu)) break;
     _gpu_calls++;
     auto start_gpu = std::chrono::steady_clock::now();
-    task_gpu.consume(GPU_TASK);
+    task_gpu->consume(GPU_TASK);
     _gpu_time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start_gpu).count();
-    _hits += task_gpu.get_hits();
-    for (double r = _result; !_result.compare_exchange_weak(r, r+task_gpu.get_result()););
-    if (!_pop_task(task)) break;
+    _hits += task_gpu->get_hits();
+    for (double r = _result; !_result.compare_exchange_weak(r, r+task_gpu->get_result()););
+    if (!_pop_task(&task)) break;
     _cpu_calls++;
     auto start = std::chrono::steady_clock::now(); 
-    task.consume(CPU_TASK);
+    task->consume(CPU_TASK);
     _cpu_time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
-    _hits += task.get_hits();
-    for (double r = _result; !_result.compare_exchange_weak(r, r+task.get_result()););
+    _hits += task->get_hits();
+    for (double r = _result; !_result.compare_exchange_weak(r, r+task->get_result()););
   }
 }
 
 void TaskManager::start_device_consumer()
 {
-  Task task;
+  Task* task;
 #ifdef CUDASTREAM
   _streams = new cudaStream_t[STREAM_NUM];
   for (int i=0; i<STREAM_NUM; i++)
@@ -79,29 +79,29 @@ void TaskManager::start_device_consumer()
 #endif
   while (true)
   {
-    if (!_pop_task(task)) break;
+    if (!_pop_task(&task)) break;
     _gpu_calls++;
     auto start = std::chrono::steady_clock::now();
-    task.consume(GPU_TASK, _streams);
+    task->consume(GPU_TASK, _streams);
     _gpu_time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
-    _hits += task.get_hits();
-    for (double r = _result; !_result.compare_exchange_weak(r, r+task.get_result()););
+    _hits += task->get_hits();
+    for (double r = _result; !_result.compare_exchange_weak(r, r+task->get_result()););
   }
   if (_streams != nullptr) for (int i=0; i<STREAM_NUM; i++) cudaStreamDestroy(_streams[i]);
 }
 
 void TaskManager::start_host_consumer()
 {
-  Task task;
+  Task* task;
   while (true)
   {
-    if (!_pop_task(task)) break;
+    if (!_pop_task(&task)) break;
     _cpu_calls++;
     auto start = std::chrono::steady_clock::now();
-    task.consume(CPU_TASK);
+    task->consume(CPU_TASK);
     _cpu_time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
-    _hits += task.get_hits();
-    for (double r = _result; !_result.compare_exchange_weak(r, r+task.get_result()););
+    _hits += task->get_hits();
+    for (double r = _result; !_result.compare_exchange_weak(r, r+task->get_result()););
   }
 }
 

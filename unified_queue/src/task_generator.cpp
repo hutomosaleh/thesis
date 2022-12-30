@@ -14,12 +14,20 @@
 
 TaskGenerator::TaskGenerator(int size) : _task_size(size) {}
 
-void TaskGenerator::_add_to_queue(Task task)
+TaskGenerator::~TaskGenerator()
+{
+  for (auto ptr : _queue)
+  {
+    delete ptr;
+  }
+}
+
+void TaskGenerator::_add_to_queue(Task* task)
 {
   _queue.push_front(task);
 }
 
-std::deque<Task> TaskGenerator::generate(bool new_tbl)
+std::deque<Task*> TaskGenerator::generate(bool new_tbl)
 {
   Parser p;
   p.parse(LINEITEM_PATH, _lineitem, new_tbl);
@@ -29,7 +37,7 @@ std::deque<Task> TaskGenerator::generate(bool new_tbl)
   std::cout << "Generating tasks" << std::endl;
   for(int i=0; i < _lineitem.size[0]; i+=_task_size)
   {
-    Task task(_task_size);
+    Task* task = new Task(_task_size);
     for(int j=0; j< _task_size; j++)
     {
       TupleQ6 tuple {
@@ -38,9 +46,9 @@ std::deque<Task> TaskGenerator::generate(bool new_tbl)
         _lineitem.l_discount[i+j],
         _lineitem.l_shipdate[i+j]
       };
-      task.add(tuple);
+      task->add(tuple);
     }
-    task.set_id(++id);
+    task->set_id(++id);
     _add_to_queue(task);
   }
   std::cout << "Tasks generated" << std::endl;
