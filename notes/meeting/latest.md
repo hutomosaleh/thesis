@@ -1,7 +1,8 @@
-## TODO
+## 23.12.22
 
-Create toy example for unified queue
-- Look into SABER's code
-- Figure out how to effectively run CPU and GPU tasks without interfering with each other
-- Make a structure for unified queue
-
+- GPU calls can be parallelized using streams
+- Try CPU Profiler intel vtuned
+- The paper focuses on GPU processing schemes, not CPU+GPU
+  - It has different novelty but can be used as our baseline too
+- Maybe CPU can be parallelized using cudaGraph (unsure)
+- Next meeting is on 6. January
