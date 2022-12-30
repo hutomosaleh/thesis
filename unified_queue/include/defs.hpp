@@ -2,6 +2,7 @@
 
 // Cuda
 #define BLOCK_SIZE 256
+#define STREAM_NUM 2
 
 // Path
 #define LINEITEM_PATH "data/lineitem.tbl"
@@ -19,5 +20,6 @@
 #define GPU_TASK 1
 
 // Mode
-// #define MALLOCMANAGED
-// #define MALLOCHOST
+#define CUDASTREAM
+//#define MALLOCMANAGED
+//#define MALLOCHOST

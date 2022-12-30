@@ -1,6 +1,7 @@
 #include "task.h"
 
 #include <atomic>
+#include <cuda_runtime_api.h>
 #include <driver_types.h>
 #include <iostream>
 #include <vector>
@@ -21,7 +22,7 @@ void Task::add(TupleQ6 tuple)
   ++_size;
 }
 
-void Task::consume(int type, cudaStream_t stream)
+void Task::consume(int type, cudaStream_t* streams)
 {
   double* q;
   double* e;
@@ -149,26 +150,41 @@ void Task::consume(int type, cudaStream_t stream)
         s_h[i] = _data[i].shipdate;
       }
 
-      // Copy host to device
-      cudaMemcpy(q, q_h, _size*sizeof(double), cudaMemcpyHostToDevice);
-      cudaMemcpy(e, e_h, _size*sizeof(double), cudaMemcpyHostToDevice);
-      cudaMemcpy(d, d_h, _size*sizeof(double), cudaMemcpyHostToDevice);
-      cudaMemcpy(s, s_h, _size*sizeof(int), cudaMemcpyHostToDevice);
-
-      int block_number = (_size + BLOCK_SIZE - 1) / BLOCK_SIZE;
-      if (stream != cudaStreamLegacy)
+      if (streams != nullptr)
       {
-        check<<<block_number, BLOCK_SIZE, 0, stream>>>(_size, q, s, d);
-        multiply<<<block_number, BLOCK_SIZE, 0, stream>>>(_size, q, e, d);
+        const int stream_size = _size / STREAM_NUM;
+        for (int i=0; i<STREAM_NUM; i++)
+        {
+          int offset = i * stream_size;
+          // Copy host to device
+          cudaMemcpyAsync(&q[offset], &q_h[offset], stream_size*sizeof(double), cudaMemcpyHostToDevice, streams[i]);
+          cudaMemcpyAsync(&e[offset], &e_h[offset], stream_size*sizeof(double), cudaMemcpyHostToDevice, streams[i]);
+          cudaMemcpyAsync(&d[offset], &d_h[offset], stream_size*sizeof(double), cudaMemcpyHostToDevice, streams[i]);
+          cudaMemcpyAsync(&s[offset], &s_h[offset], stream_size*sizeof(int), cudaMemcpyHostToDevice, streams[i]);
+          check<<<stream_size/BLOCK_SIZE, BLOCK_SIZE, 0, streams[i]>>>(_size, q, s, d);
+          multiply<<<stream_size/BLOCK_SIZE, BLOCK_SIZE, 0, streams[i]>>>(_size, q, e, d);
+        }
+        for (int i = 0; i < STREAM_NUM; ++i)
+        {
+          int offset = i * stream_size;
+          cudaMemcpyAsync(&e_h[offset], &e[offset], stream_size*sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
+        }
       }
-      else
-      {
+      else {
+        int block_number = (_size + BLOCK_SIZE - 1) / BLOCK_SIZE;
+        // Copy host to device
+        cudaMemcpy(q, q_h, _size*sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(e, e_h, _size*sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(d, d_h, _size*sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(s, s_h, _size*sizeof(int), cudaMemcpyHostToDevice);
+
+        // Run kernels
         check<<<block_number, BLOCK_SIZE>>>(_size, q, s, d);
         multiply<<<block_number, BLOCK_SIZE>>>(_size, q, e, d);
-      }
 
-      // Copy device result to host
-      cudaMemcpy(e_h, e, _size*sizeof(double), cudaMemcpyDeviceToHost);
+        // Copy device result to host
+        cudaMemcpy(e_h, e, _size*sizeof(double), cudaMemcpyDeviceToHost);
+      }
 
       // Compare for query hits and update results
       for (int i = 0; i < _size; i++)

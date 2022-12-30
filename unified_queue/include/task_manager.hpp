@@ -4,6 +4,7 @@
 #include <deque>
 #include <mutex>
 #include <thread>
+#include <cuda_runtime_api.h>
 
 #include "task.h"
 
@@ -24,6 +25,7 @@ class TaskManager
     int _loops;
     int _queue_size;
     std::deque<Task> _queue;
+    cudaStream_t* _streams = nullptr;
     std::atomic<int> _current_index = {0};
     std::atomic<int> _hits = {0};
     std::atomic<int> _gpu_time = {0};

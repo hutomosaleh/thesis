@@ -11,7 +11,7 @@ class Task
   public:
     void set_id(int id);
     void add(TupleQ6);
-    void consume(int type, cudaStream_t stream=cudaStreamLegacy);
+    void consume(int type, cudaStream_t* streams=nullptr);
     int get_hits();
     double get_result();
 
