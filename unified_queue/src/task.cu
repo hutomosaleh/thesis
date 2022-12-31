@@ -168,8 +168,8 @@ void Task::consume(int type, cudaStream_t* streams)
           cudaMemcpyAsync(&e[offset], &e_h[offset], stream_size*sizeof(double), cudaMemcpyHostToDevice, streams[i]);
           cudaMemcpyAsync(&d[offset], &d_h[offset], stream_size*sizeof(double), cudaMemcpyHostToDevice, streams[i]);
           cudaMemcpyAsync(&s[offset], &s_h[offset], stream_size*sizeof(int), cudaMemcpyHostToDevice, streams[i]);
-          check<<<stream_size/BLOCK_SIZE, BLOCK_SIZE, 0, streams[i]>>>(_size, q, s, d);
-          multiply<<<stream_size/BLOCK_SIZE, BLOCK_SIZE, 0, streams[i]>>>(_size, q, e, d);
+          check<<<stream_size/BLOCK_SIZE, BLOCK_SIZE, 0, streams[i]>>>(stream_size, q+offset, s+offset, d+offset);
+          multiply<<<stream_size/BLOCK_SIZE, BLOCK_SIZE, 0, streams[i]>>>(stream_size, q+offset, e+offset, d+offset);
         }
         for (int i = 0; i < STREAM_NUM; ++i)
         {
