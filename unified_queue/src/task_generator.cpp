@@ -16,10 +16,8 @@ TaskGenerator::TaskGenerator(int size) : _task_size(size) {}
 
 TaskGenerator::~TaskGenerator()
 {
-  for (auto ptr : _queue)
-  {
-    delete ptr;
-  }
+  if (_lineitem.size != nullptr) _delete_lineitem();
+  if (!_queue.empty()) for (auto task : _queue) delete task;
 }
 
 void TaskGenerator::_add_to_queue(Task* task)
@@ -53,4 +51,13 @@ std::deque<Task*> TaskGenerator::generate(bool new_tbl)
   }
   std::cout << "Tasks generated" << std::endl;
   return _queue;
+}
+
+void TaskGenerator::_delete_lineitem()
+{
+  delete[] _lineitem.l_discount;
+  delete[] _lineitem.l_quantity;
+  delete[] _lineitem.l_shipdate;
+  delete[] _lineitem.l_extendedprice;
+  delete[] _lineitem.size;
 }

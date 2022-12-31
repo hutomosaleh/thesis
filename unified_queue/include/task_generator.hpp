@@ -15,6 +15,7 @@ class TaskGenerator
   
   private:
     void _add_to_queue(Task* task);
+    void _delete_lineitem();
 
     LineItem _lineitem;
     std::deque<Task*> _queue;
