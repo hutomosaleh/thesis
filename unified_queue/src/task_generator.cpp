@@ -33,7 +33,8 @@ std::deque<Task*> TaskGenerator::generate(bool new_tbl)
   // Divide lineitem into chunks of tasks
   int id = 0;
   std::cout << "Generating tasks" << std::endl;
-  for(int i=0; i < _lineitem.size[0]; i+=_task_size)
+  std::cout << "Queue size: " << (int)_queue.size() << std::endl;
+  for(int i=0; i < _lineitem.size[0]-_task_size; i+=_task_size)
   {
     Task* task = new Task(_task_size);
     for(int j=0; j< _task_size; j++)
@@ -50,6 +51,7 @@ std::deque<Task*> TaskGenerator::generate(bool new_tbl)
     _add_to_queue(task);
   }
   std::cout << "Tasks generated" << std::endl;
+  std::cout << "Queue size: " << (int)_queue.size() << std::endl;
   return _queue;
 }
 

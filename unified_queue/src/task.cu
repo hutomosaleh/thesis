@@ -220,10 +220,14 @@ void Task::consume(int type, cudaStream_t* streams)
 
 int Task::get_hits()
 {
-  return _hits;
+  int hits = _hits;
+  _hits = 0;
+  return hits;
 }
 
 double Task::get_result()
 {
-  return _result;
+  int result = _result;
+  _result = 0.0f;
+  return result;
 }

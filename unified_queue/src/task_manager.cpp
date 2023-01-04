@@ -21,7 +21,7 @@ static double get_avg(int time, int rep)
 void TaskManager::read_stats()
 {
   double task_size_mb = 32*_task_size/1e6;
-  double total_calls = (double)(_cpu_calls+_gpu_calls);
+  int total_calls = _cpu_calls+_gpu_calls;
   std::cout << "\n ==== Task Manager Stats ====" << std::endl;
   std::cout << "Tuple size: 32 Bytes" << std::endl;
   std::cout << "Task size: " << task_size_mb << " MB" << std::endl;
@@ -31,9 +31,9 @@ void TaskManager::read_stats()
   std::cout << "GPU Time Avg: " << get_avg(_gpu_time, _gpu_calls) << " ms / call" << std::endl;
   std::cout << "Total Time Avg: " << get_avg(_gpu_time+_cpu_time, _loops) << " ms / loop" << std::endl;
   std::cout << "Throughput Avg: " << task_size_mb * total_calls/_loops / get_avg(_gpu_time+_cpu_time, _loops) << " MBps / loop" << std::endl;
-  std::cout << "Result: " << std::fixed << _result/_loops << std::endl;
+  std::cout << "Result: " << std::fixed << _result << std::endl;
   std::cout << "Hits: " << _hits << std::endl;
-  std::cout << "Total tuples: " << _task_size*(_cpu_calls+_gpu_calls) << std::endl;
+  std::cout << "Total tuples: " << _task_size*total_calls/_loops << std::endl;
 }
 
 bool TaskManager::_pop_task(Task** task)
@@ -114,6 +114,8 @@ void TaskManager::run(int type)
   cudaFree(0);
   for (int i=0; i<_loops; i++)
   {
+    _hits = 0;
+    _result = 0.0f;
     _current_index = 0;
     switch (type)
     {
