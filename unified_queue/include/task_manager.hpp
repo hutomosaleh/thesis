@@ -17,13 +17,14 @@ class TaskManager
     void start_hybrid_consumer();
     void read_stats();
 
-    TaskManager(std::deque<Task*> queue, int loops);
+    TaskManager(std::deque<Task*> queue, int loops, int task_size);
 
   private:
     bool _pop_task(Task** task);
 
     int _loops;
     int _queue_size;
+    int _task_size;
     std::deque<Task*> _queue;
     cudaStream_t* _streams = nullptr;
     std::atomic<int> _current_index = {0};

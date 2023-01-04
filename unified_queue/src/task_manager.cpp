@@ -10,7 +10,7 @@
 #include "defs.hpp"
 #include "task.h"
 
-TaskManager::TaskManager(std::deque<Task*> queue, int loops) : _loops(loops), _queue_size(queue.size()), _queue(queue) {};
+TaskManager::TaskManager(std::deque<Task*> queue, int loops, int task_size) : _loops(loops), _queue_size(queue.size()), _task_size(task_size), _queue(queue) {};
 
 static double get_avg(int time, int rep)
 {
@@ -20,17 +20,20 @@ static double get_avg(int time, int rep)
 
 void TaskManager::read_stats()
 {
+  double task_size_mb = 32*_task_size/1e6;
+  double total_calls = (double)(_cpu_calls+_gpu_calls);
   std::cout << "\n ==== Task Manager Stats ====" << std::endl;
-  std::cout << "CPU Calls: " << _cpu_calls << std::endl;
-  std::cout << "GPU Calls: " << _gpu_calls << std::endl;
-  std::cout << "Total Time: " << (double)(_gpu_time + _cpu_time) / 1e3 << " ms" << std::endl;
-  std::cout << "CPU/GPU Time ratio: " << get_avg(_cpu_time, _cpu_calls) / get_avg(_gpu_time, _gpu_calls) << std::endl;
-  std::cout << "CPU Total Time Avg: " << get_avg(_cpu_time, _cpu_calls) << " ms / call" << std::endl;
-  std::cout << "GPU Total Time Avg: " << get_avg(_gpu_time, _gpu_calls) << " ms / call" << std::endl;
+  std::cout << "Tuple size: 32 Bytes" << std::endl;
+  std::cout << "Task size: " << task_size_mb << " MB" << std::endl;
+  std::cout << "CPU|GPU calls: " << _cpu_calls << "|" << _gpu_calls << std::endl;
+  std::cout << "Total Time: " << total_calls / 1e3 << " ms" << std::endl;
+  std::cout << "CPU Time Avg: " << get_avg(_cpu_time, _cpu_calls) << " ms / call" << std::endl;
+  std::cout << "GPU Time Avg: " << get_avg(_gpu_time, _gpu_calls) << " ms / call" << std::endl;
   std::cout << "Total Time Avg: " << get_avg(_gpu_time+_cpu_time, _loops) << " ms / loop" << std::endl;
-  std::cout << "Result: " << std::fixed << _result << std::endl;
+  std::cout << "Throughput Avg: " << task_size_mb * total_calls/_loops / get_avg(_gpu_time+_cpu_time, _loops) << " MBps / loop" << std::endl;
+  std::cout << "Result: " << std::fixed << _result/_loops << std::endl;
   std::cout << "Hits: " << _hits << std::endl;
-  std::cout << "Total tuples: " << TASK_SIZE*(_cpu_calls+_gpu_calls) << std::endl;
+  std::cout << "Total tuples: " << _task_size*(_cpu_calls+_gpu_calls) << std::endl;
 }
 
 bool TaskManager::_pop_task(Task** task)

@@ -1,5 +1,7 @@
+#include <chrono>
 #include <deque>
 #include <iostream>
+#include <thread>
 
 #include "defs.hpp"
 #include "data_types.hpp"
@@ -22,7 +24,7 @@ int main(int argc, char** argv)
   std::deque<Task*> queue = task.generate(overwrite_file);
 
   // Start consuming tasks
-  TaskManager manager(queue, loop_count);
+  TaskManager manager(queue, loop_count, task_size);
   manager.run(type);
   manager.read_stats();
   return 0;
