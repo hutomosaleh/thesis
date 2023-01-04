@@ -18,6 +18,12 @@ add_library(gpu_kernels
 
 target_include_directories(gpu_kernels PUBLIC ../include)
 
+find_package(OpenMP REQUIRED)
+if (OpenMP_CXX_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+  target_link_libraries(gpu_kernels gomp)
+endif()
+
 target_compile_features(gpu_kernels PUBLIC cxx_std_11)
 
 add_executable(main main.cpp)

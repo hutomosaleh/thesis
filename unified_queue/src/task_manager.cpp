@@ -5,6 +5,7 @@
 #include <ios>
 #include <iostream>
 #include <thread>
+#include <omp.h>
 #include <cuda_runtime_api.h>
 
 #include "defs.hpp"
@@ -120,19 +121,39 @@ void TaskManager::run(int type)
     switch (type)
     {
       case CPU_TASK:
+      {
         start_host_consumer();
         break;
+      }
       case GPU_TASK:
+      {
         start_device_consumer();
         break;
+      }
       default:
-        //start_hybrid_consumer();
+      {
+        start_hybrid_consumer();
 
-        std::thread threads[2];
-        threads[0] = std::thread(&TaskManager::start_host_consumer, this);
-        threads[1] = std::thread(&TaskManager::start_device_consumer, this);
-        for (int i=0; i<2; i++) threads[i].join();
+        //std::thread threads[2];
+        //threads[0] = std::thread(&TaskManager::start_host_consumer, this);
+        //threads[1] = std::thread(&TaskManager::start_device_consumer, this);
+        //for (int i=0; i<2; i++) threads[i].join();
+
+        //#pragma omp parallel
+        //{
+        //  #pragma omp task
+        //  {
+        //    start_host_consumer();
+        //  }
+        //  #pragma omp task
+        //  {
+        //    start_device_consumer();
+        //  }
+        //}
+
         break;
+
+      }
     }
   }
 }
