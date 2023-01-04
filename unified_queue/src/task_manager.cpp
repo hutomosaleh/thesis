@@ -31,7 +31,7 @@ void TaskManager::read_stats()
   std::cout << "CPU Time Avg: " << get_avg(_cpu_time, _cpu_calls) << " ms / call" << std::endl;
   std::cout << "GPU Time Avg: " << get_avg(_gpu_time, _gpu_calls) << " ms / call" << std::endl;
   std::cout << "Total Time Avg: " << get_avg(_gpu_time+_cpu_time, _loops) << " ms / loop" << std::endl;
-  std::cout << "Throughput Avg: " << task_size_mb * total_calls/_loops / get_avg(_gpu_time+_cpu_time, _loops) << " MBps / loop" << std::endl;
+  std::cout << "Throughput Avg: " << task_size_mb * total_calls/_loops / get_avg(_gpu_time+_cpu_time, _loops)*1e3 << " MBps / loop" << std::endl;
   std::cout << "Result: " << std::fixed << _result << std::endl;
   std::cout << "Hits: " << _hits << std::endl;
   std::cout << "Total tuples: " << _task_size*total_calls/_loops << std::endl;
